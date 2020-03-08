@@ -55,7 +55,7 @@ conn.commit()
 # For each person, we want to do initial offset + 250 hours
 time_format = '%Y-%m-%d %H:%M:%S'
 NUMBER_OF_BATCHES = 250
-HOUR_OFFSET = 216
+HOUR_OFFSET = 466
 
 # Determine start and end times
 start_time = datetime.datetime(2020, 2, 7, 0, 0, 0) + datetime.timedelta(hours=HOUR_OFFSET)
