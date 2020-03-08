@@ -1,0 +1,26 @@
+h1 {
+    text-align: center
+}
+
+.tesla_wrapper {
+    width: 100%;
+    height: 40%;
+    max-height: 100%;
+    margin: 0;
+    padding: 0;
+    background-size:100% 100%;
+    background-repeat: no-repeat;
+}
+
+.graphs {
+    display: inline-block;
+    text-align: center;
+    width: 49%;
+    height: 49%;
+}
+
+.caption {
+    text-align: center; 
+    font-size: 25px;
+}
+
