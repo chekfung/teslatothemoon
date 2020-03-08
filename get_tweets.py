@@ -65,7 +65,9 @@ for i in range(NUMBER_OF_BATCHES):
     results = api.request('tweets/search/30day/:dev', {'query':"(tesla OR TSLA) lang:en -coil -nikola", 'maxResults':100, 'fromDate':fromDate, 'toDate':toDate})
     for result in results.get_iterator():
         ts = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(result['created_at'],'%a %b %d %H:%M:%S +0000 %Y'))
-        c.execute('''INSERT INTO Tweets VALUES (?, ?, ?, ?, ?, ?, ?);''', (result['id'], ts, result['text'], result['quote_count'], result['reply_count'], result['retweet_count'], result['favorite_count']))
+        blob = TextBlob(result['text'])
+        polarity, subjectivity = blob.sentiment
+        c.execute('''INSERT INTO Tweets VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);''', (result['id'], ts, result['text'], result['quote_count'], result['reply_count'], result['retweet_count'], result['favorite_count'], polarity, subjectivity))
     conn.commit()
 
 
