@@ -8,7 +8,7 @@ import sqlite3
 # DataFrame index is the date, Columns include Open, High, Low, Close, Adj Close
 # and Volume
 data = yf.download("TSLA", start="2020-02-01", end="2020-02-29", interval="15m")
-data.index = Series.dt.strftime(data.index, '%Y-%m-%d')
+print(data[:20])
 
 # Create connection to database
 conn = sqlite3.connect('stock_data.db')
@@ -16,7 +16,7 @@ c = conn.cursor()
 
 # Dictionary that defines column names and their types
 data_types = {
-    "date":"TEXT", 
+    "date":"DATE", 
     "open":"FLOAT",
     "high":"FLOAT",
     "low":"FLOAT",
@@ -33,7 +33,6 @@ data.to_sql('StockData', conn, if_exists='replace', index=True, \
 data.to_csv(path_or_buf='one_month_stock_data.csv')
 
 rnn_data = yf.download("TSLA", start="2019-10-01", end="2020-01-31", interval="1h")
-rnn_data.index = Series.dt.strftime(rnn_data.index, '%Y-%m-%d')
 
 # Create connection to database
 conn = sqlite3.connect('rnn_data.db')
