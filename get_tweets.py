@@ -2,10 +2,27 @@ from TwitterAPI import TwitterAPI
 import datetime
 import time
 import sqlite3
-CONSUMER_KEY = ''
-CONSUMER_SECRET = ''
-ACCESS_KEY = ''
-ACCESS_SECRET = ''
+import sys
+
+# Read keys.txt which contains consumer_key and secret, access_key and secret
+try:
+    # INPUT File name of keys.txt below
+    file = open('/Users/JasonHo/Desktop/keys.txt')
+    lines = [next(file) for x in range(4)]
+
+    # Input keys and secrets for Twitter API authentication
+    CONSUMER_KEY = lines[0]
+    CONSUMER_SECRET = lines[1]
+    ACCESS_KEY = lines[2]
+    ACCESS_SECRET = lines[3]
+
+    file.close()
+
+except FileNotFoundError:
+    # If file error occurs
+    print('Keys.txt not Found.')
+    file.close()
+    sys.exit(1)
 
 api = TwitterAPI(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_KEY, ACCESS_SECRET)
 
@@ -33,13 +50,13 @@ c.execute(create_table_command)
 conn.commit()
 
 time_format = '%Y-%m-%d %H:%M:%S'
+NUMBER_OF_BATCHES = 250
+HOUR_OFFSET = 216
 
-number_of_batches = 250
+start_time = datetime.datetime(2020, 2, 7, 0, 0, 0) + datetime.timedelta(hours=HOUR_OFFSET)
+end_time = datetime.datetime(2020, 2, 7, 1, 0, 0) + datetime.timedelta(hours=HOUR_OFFSET)
 
-start_time = datetime.datetime(2020, 2, 7, 0, 0, 0) + datetime.timedelta(hours=216)
-end_time = datetime.datetime(2020, 2, 7, 1, 0, 0) + datetime.timedelta(hours=216)
-
-for i in range(number_of_batches):
+for i in range(NUMBER_OF_BATCHES):
     time.sleep(3)
     start_search = start_time + datetime.timedelta(hours=i)
     end_search = end_time + datetime.timedelta(hours=i) 
