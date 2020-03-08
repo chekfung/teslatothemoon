@@ -5,7 +5,7 @@ import pandas as pd
 
 conn = sqlite3.connect('stock_data.db')
 
-data = pd.read_sql("SELECT id, ts, text, quote_count, reply_count, retweet_count, favorite_count FROM TWEETS", conn)
+data = pd.read_sql("SELECT id, time, text, quote_count, reply_count, retweet_count, favorite_count FROM TWEETS", conn)
 pol_col = []
 sub_col = []
 
