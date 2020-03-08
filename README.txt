@@ -11,3 +11,13 @@ The one month and rnn_data databases has the following column names:
 - Volume: represents the number of shares of TSLA trading on the corresponding
             date
 
+The table of tweets has the following schema:
+- id: The ID of the tweet. Is the primary key
+- time: The timestamp (UTC) of the tweet.
+- text: The text of the tweet.
+- quote_count: Number of times this tweet was quoted.
+- reply_count: Number of replies to this tweet.
+- retweet_count: Number of times this tweet was retweeted.
+- favorite_count: Number of times this tweet was favorited.
+- Polarity: Sentiment analysis of the text, where -1 is most negative and 1 is most positive.
+- Subjectivity: How subjective the text is, where 0 is most objective and 1 is most subjective.
