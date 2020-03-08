@@ -28,3 +28,19 @@ data_types = {
 # Converts the DataFrame to a sql database, replacing it if it already exists
 data.to_sql('StockData', conn, if_exists='replace', index=True, \
     index_label="date", dtype=data_types)
+
+# Writes the DataFrame to a csv file for the data sample deliverable
+data.to_csv(path_or_buf='one_month_stock_data.csv')
+
+rnn_data = yf.download("TSLA", start="2019-09-01", end="2020-01-31")
+rnn_data.index = Series.dt.strftime(rnn_data.index, '%Y-%m-%d')
+
+# Create connection to database
+conn = sqlite3.connect('rnn_data.db')
+c = conn.cursor()
+
+# Writes the RNN training data DataFrame to a sqlite3 database
+data.to_sql('RNNData', conn, if_exists='replace', index=True, index_label="date", dtype=data_types)
+
+# Writes the RNN training data DataFrame to a csv file for the sample deliverable
+data.to_csv(path_or_buf='rnn_stock_data.csv')
