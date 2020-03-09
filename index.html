@@ -16,7 +16,7 @@
 
         <img src="imgs/rnn_data.png" alt="Rnn Data" class="graphs">
         <img src="imgs/test_data.png" alt="Test Data" class="graphs">
-        <p class="caption"><strong>Figure 1:</strong> Rnn Data Graphed &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>Figure 2:</strong> Test Stock Data </p>
+        <p class="caption"><strong>Figure 1:</strong> Rnn Data Graphed &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>Figure 2:</strong> Test Stock Data </p>
 
         <br>
         </p>
@@ -34,7 +34,10 @@
         <p>
         <br>
         </p>
-        <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:12pt;font-family:'Times New Roman';color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Regarding the tweet data, much of the cleaning occurred when querying the API. We were able to get only english tweets, tweets with TESLA or TSLA, and to ignore ‘coil’ and ‘nikola’. After filtering, there are 71600 tweets, 10790 that have a negative sentiment, 31881 that are neutral, and 28929 that are positive. There are no missing values or duplicates. We think this is a lot of data that will allow us to perform enough analysis with some techniques, but we would like to have more since our data is biased--all of our tweets were tweeted close to the end of each hour, because the Twitter API gave us results from most recent in the hour to least recent in the hour. There are no data type issues, and we do not think we need to throw any data away.</span></p>
+        <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:12pt;font-family:'Times New Roman';color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Regarding the tweet data, much of the cleaning occurred when querying the API. We were able to get only english tweets, tweets with TESLA or TSLA, and to ignore ‘coil’ and ‘nikola’. After filtering, there are 71600 tweets, 10790 that have a negative sentiment, 31881 that are neutral, and 28929 that are positive. There are no missing values or duplicates. We think this is a lot of data that will allow us to perform enough analysis with some techniques, but we would like to have more since our data is biased--all of our tweets were tweeted close to the end of each hour, because the Twitter API gave us results from most recent in the hour to least recent in the hour. There are no data type issues, and we do not think we need to throw any data away. One problem that we did run into was that some tweets would be impossible to actually clean since they tick all of the boxes of tweets we are looking for, but are not really related. Since these tweets are far and few, this should not really be a problem. An example is provided below:</span></p>
+        <img src="imgs/bad_tweet.png" alt="Bad Picture" class="bad_tweet">
+        <p class="caption"><strong>Figure 3:</strong> Bad tweet that is hard to clean</p>
+        
         <p>
         <br>
         </p>
