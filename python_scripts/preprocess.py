@@ -5,6 +5,14 @@ from datetime import datetime
 from dateutil import parser
 from pandas import Series, DataFrame
 
+"""
+Returns price and twitter data as a numpy and dataframe, as well as prices for
+the vanilla rnn both as a numpy array and series. 
+
+Each row of stock and twitter data is a price and twitter score for tweets up
+until the next price data point. Each row of vanilla rnn data is just the price
+"""
+
 # Returns a tuple of mean scores used to predict the given date/hour and scores starting at inputted date/hour
 def get_score(scores, date, hour): 
     idx = 0
@@ -73,6 +81,9 @@ prices = Series(prices)
 # Only get the last price for 2/6
 prices = prices[6:]
 
+# Get RNN Data
+numpy_rnn_data = np.array()
+
 #------------------------------------------------------------------------------
 
 numpy_data = []
@@ -89,4 +100,8 @@ numpy_data = np.array(numpy_data)
 df_data = DataFrame(df_data).transpose()
 df_data.columns = ["Price", "Score"]
 
-return numpy_data, df_data
+numpy_vanilla_rnn_data = np.array(rnn_data["Adj Close"])
+series_vanilla_rnn_data = Series(data=rnn_data["Adj Close"])
+series_rnn_data.index = rnn_data["date"]
+
+return numpy_data, df_data, numpy_vanilla_rnn_data, series_vanilla_rnn_data
