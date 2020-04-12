@@ -20,12 +20,10 @@ class Stock_RNN(tf.keras.Model):
 		return self.model(stock_input)
 
 	def accuracy_function(self, predicted_results, real_prices):
-		sess = tf.InteractiveSession()
-		predictions = predicted_results.eval()
-		print(predictions)
-		print(np.shape(predictions))
+		predicted_results = np.array(predicted_results)
+		print(np.shape(predicted_results))
 		print(np.shape(real_prices))
-		accuracy = np.mean(np.square(predictions-real_prices))
+		accuracy = np.mean(np.square(predicted_results-real_prices))
 		return accuracy
 
 
@@ -89,8 +87,6 @@ if __name__=="__main__":
 	WINDOW_SIZE = 24
 	train_data, test_data, train_prices, test_prices = get_data(TEST_PROB)
 	train_data, test_data, train_prices, test_prices = preprocess(train_data, test_data, train_prices, test_prices, WINDOW_SIZE)
-	print(train_data[1,23,3])
-	print(train_prices[0])
 	print(np.shape(train_data))
 	print(np.shape(test_data))
 	print(np.shape(train_prices))
