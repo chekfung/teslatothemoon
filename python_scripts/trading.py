@@ -305,9 +305,18 @@ class StockTradingObj:
 
 # =========================================================================== #
 def main():
-    # TODO: Parse the three columns: predicted_arr, stock_data, dates
-    # TODO: Create a StockTrading Object and then wait
-    pass
+    # Parse the three columns: predicted_arr, stock_data, dates
+    STOCK_DATABASE_PATH = "../data/stock_data.db"
+    RNN_DATABASE_PATH = "../data/rnn_data.db"
+
+    x = Preprocess(STOCK_DATABASE_PATH, RNN_DATABASE_PATH)
+    numpy_data, df_data, numpy_vanilla_rnn_data, df_vanilla_rnn_data = x.get_data()
+    dates = df_data['Date'].to_numpy()
+    stocks = df_data['Close']
+
+    # TODO: Get the predicted data
+    # For now, I have dummy data to make sure that everything works
+
 
 if __name__ == '__main__':
     main()
