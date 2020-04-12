@@ -56,7 +56,7 @@ def test(model,test_data, test_prices):
 def get_data(test_prob=0.2):
 	conn = sqlite3.connect("../data/rnn_data.db")
 	data = pd.read_sql("SELECT * FROM RNNData", conn).to_numpy()
-	data_without_date = data[:,1:].astype(np.float64)
+	data_without_date = data[:,1:].astype(np.float32)
 	total_points = np.shape(data_without_date)[0]
 	train_data = data_without_date[:int((1-test_prob)*total_points)]
 	test_data = data_without_date[int((1-test_prob)*total_points):]
