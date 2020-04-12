@@ -20,12 +20,12 @@ class Stock_RNN(tf.keras.Model):
 		return self.model(stock_input)
 
 	def accuracy_function(self, predicted_results, real_prices):
-		predicted_results = np.array(predicted_results)
+		real_prices = tf.convert_to_tensor(real_prices)
 		print(np.shape(predicted_results))
 		print(predicted_results.dtype)
 		print(np.shape(real_prices))
 		print(real_prices.dtype)
-		accuracy = np.mean(np.square(predicted_results-real_prices))
+		accuracy = tf.mean(tf.square(predicted_results-real_prices))
 		return accuracy
 
 
@@ -42,8 +42,6 @@ def train(model, train_data, train_prices, num_epochs):
 		while current_batch_number < total_num_of_data:
 			with tf.GradientTape() as tape:
 				predictions = model.call(train_data[current_batch_number:current_batch_number+model.batch_size]) # Get the probabilities for each batch
-				print(np.shape(predictions))
-				print(np.shape(train_prices[current_batch_number:current_batch_number+model.batch_size]))
 				loss = model.loss_function(predictions,train_prices[current_batch_number:current_batch_number+model.batch_size]) # Gets the loss
 				
 				print("Current MSE on epoch",current_epoch,":",model.accuracy_function(predictions, train_prices[current_batch_number:current_batch_number+model.batch_size]))
