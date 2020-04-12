@@ -7,7 +7,7 @@ class Stock_RNN(tf.keras.Model):
 	def __init__(self, batch_size):
 		super(Stock_RNN, self).__init__()
 
-		self.optimizer = tf.keras.optimizers.Adam(learning_rate = 0.01) # Optimizer
+		self.optimizer = tf.keras.optimizers.Adam(learning_rate = 0.1) # Optimizer
 		self.batch_size = batch_size # Take one day's worth of data at a time
 		self.model = tf.keras.Sequential()
 		
@@ -21,8 +21,6 @@ class Stock_RNN(tf.keras.Model):
 
 	def accuracy_function(self, predicted_results, real_prices):
 		real_prices = tf.convert_to_tensor(real_prices)
-		print(real_prices)
-		print(predicted_results)
 		accuracy = tf.reduce_mean(tf.square(predicted_results-real_prices))
 		return accuracy
 
@@ -31,7 +29,7 @@ class Stock_RNN(tf.keras.Model):
 		# Gets the average loss
 		return tf.reduce_mean(tf.keras.losses.MSE(predictions,actual))
 
-def train(model, train_data, train_prices, num_epochs):
+def train(model, train_data, train_prices, test_data, test_prices, num_epochs):
 
 	current_epoch = 0
 	total_num_of_data = np.shape(train_data)[0]
@@ -42,11 +40,15 @@ def train(model, train_data, train_prices, num_epochs):
 				predictions = model.call(train_data[current_batch_number:current_batch_number+model.batch_size]) # Get the probabilities for each batch
 				loss = model.loss_function(predictions,train_prices[current_batch_number:current_batch_number+model.batch_size]) # Gets the loss
 				
-				print("Current MSE on epoch",current_epoch,":",model.accuracy_function(predictions, train_prices[current_batch_number:current_batch_number+model.batch_size]))
+				
 			# Gets the gradients for this batch
 			gradients = tape.gradient(loss, model.trainable_variables)
 			model.optimizer.apply_gradients(zip(gradients, model.trainable_variables)) # Does gradient descent
 			current_batch_number+=model.batch_size # Goes to next batch
+		train_predictions = model.call(train_data)
+		test_predictions = model.call(test_data)
+		print("Current Train MSE on epoch",current_epoch,":",model.accuracy_function(train_predictions, train_prices))
+		print("Current Test MSE on epoch",current_epoch,":",model.accuracy_function(test_predictions, test_prices))
 		current_epoch += 1
 	pass
 
@@ -89,6 +91,6 @@ if __name__=="__main__":
 	print(np.shape(test_data))
 	print(np.shape(train_prices))
 	print(np.shape(test_prices))
-	train(rnn, train_data, train_prices, NUM_EPOCHS)
+	train(rnn, train_data, train_prices, test_data, test_prices, NUM_EPOCHS)
 	test(rnn, test_data, test_prices)
 	
