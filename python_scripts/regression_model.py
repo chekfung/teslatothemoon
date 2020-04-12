@@ -45,7 +45,23 @@ lin2.fit(X_poly, y)
 plt.scatter(X, y, color = 'blue') 
   
 plt.plot(X, lin2.predict(poly.fit_transform(X)), color = 'red') 
-plt.title('Polynomial Regression') 
+plt.title('Polynomial Regression (2nd degree) of Stock Price vs. Twitter Sentiment') 
+plt.xlabel('Twitter Sentiment') 
+plt.ylabel('Stock Price') 
+  
+plt.show()
+
+poly3 = PolynomialFeatures(degree = 3) 
+X_poly3 = poly3.fit_transform(X) 
+  
+poly3.fit(X_poly3, y) 
+lin3 = LinearRegression() 
+lin3.fit(X_poly3, y) 
+
+plt.scatter(X, y, color = 'blue') 
+  
+plt.plot(X, lin3.predict(poly3.fit_transform(X)), color = 'red') 
+plt.title('Polynomial Regression (3rd degree) of Stock Price vs. Twitter Sentiment') 
 plt.xlabel('Twitter Sentiment') 
 plt.ylabel('Stock Price') 
   
