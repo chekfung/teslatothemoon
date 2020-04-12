@@ -80,7 +80,7 @@ def slidingWindow(array, window_size):
 	return np.array(windowed_array)
 
 def preprocess(train_data, test_data, train_prices, test_prices, window_size):
-	return slidingWindow(train_data,window_size), slidingWindow(test_data,window_size), train_prices[window_size:], test_prices[window_size:]
+	return slidingWindow(train_data,window_size), slidingWindow(test_data,window_size), train_prices[window_size-1:], test_prices[window_size-1:]
 	
 if __name__=="__main__":
 	rnn = Stock_RNN(24)
@@ -89,6 +89,8 @@ if __name__=="__main__":
 	WINDOW_SIZE = 24
 	train_data, test_data, train_prices, test_prices = get_data(TEST_PROB)
 	train_data, test_data, train_prices, test_prices = preprocess(train_data, test_data, train_prices, test_prices, WINDOW_SIZE)
+	print(train_data[1,23,3])
+	print(train_prices[0])
 	print(np.shape(train_data))
 	print(np.shape(test_data))
 	print(np.shape(train_prices))
