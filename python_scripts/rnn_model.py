@@ -4,7 +4,7 @@ import sqlite3
 import pandas as pd
 
 class Stock_RNN(tf.keras.Model):
-	def __init__(self, batch_size=24):
+	def __init__(self, batch_size):
 		super(Stock_RNN, self).__init__()
 
 		self.optimizer = tf.keras.optimizers.Adam(learning_rate = 0.01) # Optimizer
@@ -56,7 +56,7 @@ def test(model,test_data, test_prices):
 def get_data(test_prob=0.2):
 	conn = sqlite3.connect("../data/rnn_data.db")
 	data = pd.read_sql("SELECT * FROM RNNData", conn).to_numpy()
-	data_without_date = data[:,1:]
+	data_without_date = data[:,1:].astype(np.float64)
 	total_points = np.shape(data_without_date)[0]
 	train_data = data_without_date[:int((1-test_prob)*total_points)]
 	test_data = data_without_date[int((1-test_prob)*total_points):]
