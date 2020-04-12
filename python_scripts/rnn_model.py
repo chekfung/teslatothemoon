@@ -37,10 +37,10 @@ def train(model, train_data, train_prices, num_epochs):
 		while current_batch_number < total_num_of_data:
 			with tf.GradientTape() as tape:
 				predictions = model.call(train_data[current_batch_number:current_batch_number+model.batch_size]) # Get the probabilities for each batch
-                print(np.shape(predictions))
-                print(np.shape(train_prices[current_batch_number:current_batch_number+model.batch_size]))
+				print(np.shape(predictions))
+				print(np.shape(train_prices[current_batch_number:current_batch_number+model.batch_size]))
 				loss = model.loss_function(predictions,train_prices[current_batch_number:current_batch_number+model.batch_size]) # Gets the loss
-                
+				
 				print("Current MSE on epoch",current_epoch,":",model.accuracy_function(predictions, train_prices[current_batch_number:current_batch_number+model.batch_size]))
 			# Gets the gradients for this batch
 			gradients = tape.gradient(loss, model.trainable_variables)
