@@ -11,8 +11,8 @@ class Stock_RNN(tf.keras.Model):
 		self.batch_size = batch_size # Take one day's worth of data at a time
 		self.model = tf.keras.Sequential()
 		
-		self.model.add(tf.keras.layers.LSTM(128, return_sequences=True)) # GRU layer
-		self.model.add(tf.keras.layers.LSTM(64, return_sequences=False)) # GRU layer
+		self.model.add(tf.keras.layers.LSTM(128, return_sequences=True)) # LSTM layer
+		self.model.add(tf.keras.layers.LSTM(64, return_sequences=False)) # LSTM layer
 		self.model.add(tf.keras.layers.Dense(16, use_bias=True, kernel_initializer='uniform', activation='relu')) # Dense layer
 		self.model.add(tf.keras.layers.Dense(1, use_bias=True, kernel_initializer='uniform')) # Dense layer
 	@tf.function
@@ -65,13 +65,24 @@ def get_data(test_prob=0.2):
 	train_data = train_data[:-1]
 	test_data = test_data[:-1]
 	return train_data, test_data, train_prices, test_prices
+
+def slidingWindow(array, window_size):
+	windowed_array = []
+	for i in range(0, np.shape(array)[0]-window_size+1):
+		window = array[i:i+window_size]
+		windowed_array.append(window)
+	return np.array(windowed_array)
+
+def preprocess(train_data, test_data, train_prices, test_prices, window_size):
+	return slidingWindow(train_data,window_size), slidingWindow(test_data,window_size), slidingWindow(train_prices,window_size), slidingWindow(test_prices,window_size)
 	
 if __name__=="__main__":
 	rnn = Stock_RNN(24)
 	TEST_PROB = 0.2
 	NUM_EPOCHS = 250
+	WINDOW_SIZE = 24
 	train_data, test_data, train_prices, test_prices = get_data(TEST_PROB)
-	
+	train_data, test_data, train_prices, test_prices = preprocess(train_data, test_data, train_prices, test_prices)
 	train(rnn, train_data, train_prices, NUM_EPOCHS)
 	test(rnn, test_data, test_prices)
 	
