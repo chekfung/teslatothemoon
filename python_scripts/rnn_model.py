@@ -7,7 +7,7 @@ class Stock_RNN(tf.keras.Model):
 	def __init__(self, batch_size):
 		super(Stock_RNN, self).__init__()
 
-		self.optimizer = tf.keras.optimizers.Adam(learning_rate = 0.01) # Optimizer
+		self.optimizer = tf.keras.optimizers.Adam(learning_rate = 0.1) # Optimizer
 		self.batch_size = batch_size # Take one day's worth of data at a time
 		self.model = tf.keras.Sequential()
 		
