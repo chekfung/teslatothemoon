@@ -66,8 +66,9 @@ class Preprocess():
             date = tweets["time"][i].date()
             hour = tweets["time"][i].hour
             idx = (date, hour)
+
             scores = sample["polarity"] * (sample["favorite_count"] + sample["retweet_count"] + sample["reply_count"] + \
-                                        sample["quote_count"])
+                                        sample["quote_count"]) 
             score = scores.sum()
             vals[idx] = score  
         vals = Series(vals)
