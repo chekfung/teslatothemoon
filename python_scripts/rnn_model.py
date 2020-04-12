@@ -20,7 +20,12 @@ class Stock_RNN(tf.keras.Model):
 		return self.model(stock_input)
 
 	def accuracy_function(self, predicted_results, real_prices):
-		accuracy = tf.reduce_mean(tf.square(predicted_results-real_prices))
+		sess = tf.InteractiveSession()
+		predictions = predicted_results.eval()
+		print(predictions)
+		print(np.shape(predictions))
+		print(np.shape(real_prices))
+		accuracy = np.mean(np.square(predictions-real_prices))
 		return accuracy
 
 
@@ -75,7 +80,7 @@ def slidingWindow(array, window_size):
 	return np.array(windowed_array)
 
 def preprocess(train_data, test_data, train_prices, test_prices, window_size):
-	return slidingWindow(train_data,window_size), slidingWindow(test_data,window_size), train_prices, test_prices
+	return slidingWindow(train_data,window_size), slidingWindow(test_data,window_size), train_prices[window_size:], test_prices[window_size:]
 	
 if __name__=="__main__":
 	rnn = Stock_RNN(24)
@@ -84,6 +89,10 @@ if __name__=="__main__":
 	WINDOW_SIZE = 24
 	train_data, test_data, train_prices, test_prices = get_data(TEST_PROB)
 	train_data, test_data, train_prices, test_prices = preprocess(train_data, test_data, train_prices, test_prices, WINDOW_SIZE)
+	print(np.shape(train_data))
+	print(np.shape(test_data))
+	print(np.shape(train_prices))
+	print(np.shape(test_prices))
 	train(rnn, train_data, train_prices, NUM_EPOCHS)
 	test(rnn, test_data, test_prices)
 	
