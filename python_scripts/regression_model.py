@@ -80,7 +80,7 @@ plt.plot(X, lin.predict(X), color = 'red')
 plt.title('Linear Regression of Stock Price vs. Twitter Sentiment') 
 plt.legend(['Predicted Model','Raw data'], loc='best')
 plt.xlabel('Twitter Sentiment') 
-plt.ylabel('TSLA Share Price (USD)') 
+plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)') 
   
 plt.show()
 
@@ -107,7 +107,7 @@ plt.plot(X, lin2.predict(poly.fit_transform(X)), color = 'red')
 plt.title('Polynomial Regression (2nd degree) of Stock Price vs. Twitter Sentiment') 
 plt.legend(['Predicted Model','Raw data'], loc='best')
 plt.xlabel('Twitter Sentiment') 
-plt.ylabel('TSLA Share Price (USD)') 
+plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)') 
   
 plt.show()
 
@@ -133,7 +133,7 @@ plt.plot(X, lin3.predict(poly3.fit_transform(X)), color = 'red')
 plt.title('Polynomial Regression (3rd degree) of Stock Price vs. Twitter Sentiment') 
 plt.legend(['Predicted Model','Raw data'], loc='best')
 plt.xlabel('Twitter Sentiment') 
-plt.ylabel('TSLA Share Price (USD)') 
+plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)') 
   
 plt.show()
 
@@ -154,7 +154,7 @@ plt.plot(X, clf.predict(X), color = 'red')
 plt.title('Support Vector Regression of Stock Price vs. Twitter Sentiment') 
 plt.legend(['Predicted Model','Raw data'], loc='best')
 plt.xlabel('Twitter Sentiment') 
-plt.ylabel('TSLA Share Price (USD)') 
+plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)') 
 
 plt.show()
 
