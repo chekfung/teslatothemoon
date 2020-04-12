@@ -97,6 +97,8 @@ lin2.fit(X_poly_train, y_train)
 
 print('Polynomial Regression Degree 2 Training MSE:', mean_squared_error(y_train, lin2.predict(X_poly_train)))
 print('Polynomial Regression Degree 2 Testing MSE:', mean_squared_error(y_test, lin2.predict(X_poly_test)))
+print('Polynomial Regression Degree 2 Training R-squared:', r2_score(y_train, lin2.predict(X_poly_train)))
+print('Polynomial Regression Degree 2 Testing R-squared:', r2_score(y_test, lin2.predict(X_poly_test)))
 print('\n')
 
 plt.scatter(X, y, color = 'blue') 
@@ -121,6 +123,8 @@ lin3.fit(X_poly3_train, y_train)
 
 print('Polynomial Regression Degree 3 Training MSE:', mean_squared_error(y_train, lin3.predict(X_poly3_train)))
 print('Polynomial Regression Degree 3 Testing MSE:', mean_squared_error(y_test, lin3.predict(X_poly3_test)))
+print('Polynomial Regression Degree 3 Training R-squared:', r2_score(y_train, lin3.predict(X_poly3_train)))
+print('Polynomial Regression Degree 3 Testing R-squared:', r2_score(y_test, lin3.predict(X_poly3_test)))
 print('\n')
 
 plt.scatter(X, y, color = 'blue') 
@@ -140,6 +144,8 @@ clf.fit(X_train, y_train)
 
 print('Support Vector Regression Training MSE:', mean_squared_error(y_train, clf.predict(X_train)))
 print('Support Vector Regression Testing MSE:', mean_squared_error(y_test, clf.predict(X_test)))
+print('Support Vector Regression Training R-squared:', r2_score(y_train, clf.predict(X_train)))
+print('Support Vector Regression Testing R-squared:', r2_score(y_test, clf.predict(X_test)))
 print('\n')
 
 plt.scatter(X, y, color = 'blue') 
