@@ -82,7 +82,7 @@ if __name__=="__main__":
 	NUM_EPOCHS = 250
 	WINDOW_SIZE = 24
 	train_data, test_data, train_prices, test_prices = get_data(TEST_PROB)
-	train_data, test_data, train_prices, test_prices = preprocess(train_data, test_data, train_prices, test_prices)
+	train_data, test_data, train_prices, test_prices = preprocess(train_data, test_data, train_prices, test_prices, WINDOW_SIZE)
 	train(rnn, train_data, train_prices, NUM_EPOCHS)
 	test(rnn, test_data, test_prices)
 	
