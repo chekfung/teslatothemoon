@@ -25,7 +25,7 @@ class Stock_RNN(tf.keras.Model):
 		print(predicted_results.dtype)
 		print(np.shape(real_prices))
 		print(real_prices.dtype)
-		accuracy = tf.mean(tf.square(predicted_results-real_prices))
+		accuracy = tf.reduce_mean(tf.square(predicted_results-real_prices))
 		return accuracy
 
 
