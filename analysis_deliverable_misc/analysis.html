@@ -26,6 +26,7 @@
         </ul>
 
         <h2>How Were the ML Algorithm and Metrics for Success Determined?</h2>
+        <h3><a href="https://drive.google.com/drive/folders/1SEUtaLe4FjCH_RIAvaJf6DHhT97-QiI0?usp=sharing">Link to Python Scripts Used</a></h2> 
         <ul class="roman">
           <li>We used many different kinds of regression when implementing regression to test exactly which ones would work the best. In our case, we tested linear regression, polynomial regression of degree 2, polynomial regression of degree 3, and support vector regression between the twitter sentiment data and the stock price for each hour between our time period.
           </li>
@@ -90,7 +91,7 @@
         <ul class="roman">
           <li>For regression, we had tried out multiple different types of regression: linear, polynomial of degree 2, polynomial of degree 3, and support vector regression. All of the more complex models seem to boil down to a linear model, but have multiple different lines to fit more to the training data. For regression, we choose a linear model because it is able to approximate as good if not better than the more complex models, but does not overfit as much. Our data does not have any protected attributes that we know of.
           </li>
-          <li>We chose to use RNN models as well because they learn to use data they have seen in the past to predict the next stock price. For the stock market, this intuitively makes sense because stock prices many hours in the past may contribute to how the current price will move.
+          <li>In the future, we plan on using a deep learning RNN model as well because they learn to use data they have seen in the past to predict the next stock price. For the stock market, this intuitively makes sense because stock prices many hours in the past may contribute to how the current price will move. While we have not explicitly included it in this deliverable, we have already written a simulation trading script given the predicted RNN stock price graph are actively testing and tweaking our RNN to get the best results possible. We plan on using these visualizations in our poster to demonstrate how there is not really much correlation between the TSLA stock price and twitter sentiment, but it could be one small factor in a group of many different factors that influence Tesla's stock price. The trading script will allow us to evaluate how are model has trained in the future and provide us visualizations of many different models.
           </li>
         </ul>
 
