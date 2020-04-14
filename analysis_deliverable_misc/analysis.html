@@ -1,0 +1,94 @@
+<!DOCTPYE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>TESLA TO THE MOON ANALYSIS</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <img src="imgs/elon_factory_crop.jpg" alt="Tesla Cover" class="tesla_wrapper">
+        <p>
+        <meta charset="utf-8">
+        </p>
+        <h1>Tesla to the Moon Analysis</h1>
+        <h4>Jeremy Chen, Steven Cheung, Jason Ho, Neal Mahajan</h4>
+
+        <p><br></p>
+        <h2>Prediction Task and Metrics for Success</h2>
+        <ul class="roman">
+          <li>Prediction Task: Provided Twitter sentiment data for each hour in the time period of February 6th, 2020, to March 6th, 2020, predict the price of one TSLA share.
+          <ul class="square">
+            <li>Metrics for success: We sought to find a model that is able to maximize our r_squared values, while minimizing our mean squared error.</li>
+          </ul>
+          </li>
+          <li>Later on, in our deep learning model, we plan on using a stock trading simulation where we compare the money made by our RNN prediction given only stock data against our RNN model’s predictions given both stock and Twitter data. In addition, for our RNN we also use mean-square error to evaluate how close our model is to both the training and the testing data.
+          </li>
+        </ul>
+
+        <h2>How Were the ML Algorithm and Metrics for Success Determined?</h2>
+        <ul class="roman">
+          <li>We used many different kinds of regression when implementing regression to test exactly which ones would work the best. In our case, we tested linear regression, polynomial regression of degree 2, polynomial regression of degree 3, and support vector regression between the twitter sentiment data and the stock price for each hour between our time period.
+          </li>
+          <li>We first took our sentiment data and preprocessed it so that it fit the time frame of our stock data. That is, our twitter sentiment score for each hour was compiled based off on: Σ polarity * (favorites + retweets + quotes + reply). Second, for non trading hours and weekends we had to take the average sentiment of all hours in between to aggregate into one data point. Third, we also had to pair each hour’s Twitter data with the appropriate stock data point using the dates of each data point. After that, we got rid of outliers in the sentiment data. We believed that the outliers would skew our prediction models for regression, so we got rid of them to try and get a better model in the specific region that we had data in. We define outliers as any point where the twitter sentiment has a z-score of above 3.00 or below 3.00. In all of our data, we found that the mean twitter sentiment was 21.18 and the standard deviation was 45.40. With z-score bounds of -3 and 3, we find that the bottom and top bound of sentiment are -115 and 157, respectively. In addition, we split our data into training and testing data, where testing accounts for 20 percent of the data.
+          </li>
+          <li>For regression we measure success or failure based on mean_squared_error, r_squared values and whether the model overfit or underfit. We chose r_squared because that tells us how well our model explains for variance in the dependent variable. We chose mean_squared_error because it tells us how much error there was in our model, as well as if we are underfitting or overfitting. At first, we found that most of our data was clustered around sentiments of zero, but we had a few outliers that affected our model greatly. After getting rid of the outliers, all of the regression models we tested seemed to approximate a linear model.
+          </li>
+          <li>Despite the fact that we are able to minimize our testing mean squared error better on these more complex models, it seems that we are overfitting to hit more points in our data (see figures below). Therefore, we evaluate the linear model as the best model for relating the two variables, $TSLA share price and twitter sentiment together.
+          </li>
+          <li>We had two RNN models, one given Twitter sentiment data along with stock data, and one with just stock data. For the RNN models, we wrote a trading script that aimed to make money using RNN predictions for stock price. We therefore measure success for the RNN models to be the difference in money made between the RNN with only stock data and the RNN with stock data and Twitter data. For example, if the RNN with stock and Twitter data outperformed the RNN with only stock data, we would be able to say Twitter sentiment can help predict TSLA stock prices. We also choose to measure the performance of the RNN models by their mean_squared_error. We chose to use profit as a measure because it easily tells us if the RNN can make correct predictions and if the RNN with Twitter data significantly outperforms the RNN without Twitter data. We also chose mean_squared_error because it allows us to compare RNNs with our regression models, and it provides a measure of error in our predictions.
+          </li>
+          <li>We had several challenges. First, because we were only able to gather one month of Twitter data due to the Twitter API, we may simply have gotten a poor sample, and there may not be enough data to make a conclusion off of. Next, we found the RNN took significantly more time to write and train than we had planned for, and for this deliverable, we decided it would not make sense to include an unfinished or minimally trained model. Finally, we realized there was an inherent flaw in predicting stock prices using Twitter data during non trading hours: because of stock futures trading, even after trading ends on one day, people may have a good sense of where TSLA will open the next day, which could affect Twitter sentiment during those hours. Therefore, by using the average of all Twitter sentiment during all after trading hours to predict the opening stock price on the next day, we may be using Twitter sentiment that has already reacted to the open stock price predicted by futures trading, which could skew results.
+          </li>
+          <li>When evaluating our regression models, we found that all of them do not have great r_squared values, implying that twitter sentiment data does not seem to affect the stock price of TSLA. There does not seem to be a high correlation between the two.
+          </li>
+          <img src="imgs/regression_comp_table.png" alt="Regression Table" class="table">
+          <p class="caption"><strong>Figure 1:</strong> Comparison of Regression Strategies
+        </ul>
+
+        <h2>Interpretation of Results</h2>
+        <ul class="roman">
+          <li>The linear regression model did not fit the data very well as evidenced by the small R_squared. Therefore, our prediction accuracy is not as good as we had hoped. Using the RNN in the future, we hope to improve our prediction accuracy.
+          </li>
+          <li>We believe our regression model had a lackluster prediction accuracy because other confounding factors like previous stock price are also relevant while our regression only took into account twitter sentiment at a specific point in time. This resulted in a distribution that looked vaguely uniform and random indicating that linear regression with these variables will not be very useful. We found that the r_squared value was quite low, with a testing MSE on the linear regression of -0.16. We believe that the correlation between the two variables is minimal, but it is important to note that we cannot be that confident in our results due to our data collection. Since we were not able to capture more tweets due to Twitter API limitations, our dataset was much smaller, meaning that there is a chance that our data is not able to capture the correlation between our two variables.
+          </li>
+          <li>Preliminary results using an RNN shows that it seems to overfit heavily on the training data, while seeming to perform worse on the testing data over time. Training MSE did decrease over time, but testing MSE was increasing over time. This seems to suggest that our model’s architecture needs to be changed in some way to prevent this overfitting.
+          </li>
+        </ul>
+
+        <h2>Visualizations</h2>
+        <ul class="roman">
+          <li>For visualization, we decided to use a time series graph of TSLA price and Twitter sentiment. We thought this would be useful because it makes it easy to see how TSLA price and Twitter sentiment move together. Next, we used a scatter plot of Twitter Sentiment vs TSLA price, which we thought would easily display any trend or correlation between the two. Since we were using these variables as our dependent and independent variables, respectively, it made sense to use these graphs to initially display the raw data alongside our predicted model.
+          </li>
+          <li>Our graphs are regression models (linear, polynomial(degree 2 and 3), and SVR) attempting to predict TSLA stock price solely from twitter sentiment data.
+          </li>
+          <li>Our linear regression produced a line with a small slope, low r_squared, and high MSE. The polynomial regression models (second and third degree) we used created trends that mirrored our linear regression model, but due to the complexity of the model overfit to the data more, leading us to believe our linear model is the most useful.
+          </li>
+          <li>One of the challenges visualizing our results was the presence of outliers which affected our regression analysis. We removed values with a z-score bigger than 3. We found that 5 of our points were outliers. After removing these, our data seemed to be very uniformly random, suggesting that there is not a correlation between the two variables.
+          </li>
+        </ul>
+
+        <img src="imgs/combined_raw_plot.png" alt="Combined Raw Plot" class="full_size">
+        <p class="caption"><strong>Figure 2:</strong> Combined Raw Plot of Twitter Sentiment and TSLA Stock Price
+        <br>
+
+        <img src="imgs/linear_regression.png" alt="Linear Regression" class="graphs">
+        <img src="imgs/polynomial_2.png" alt="Second Degree Polynomial Regression" class="graphs">
+        <p class="caption"><strong>Figure 3:</strong> Linear Regression Plot &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>Figure 4:</strong> Second Degree Polynomial Regression Plot </p>
+        <br>
+
+        <img src="imgs/polynomial_3.png" alt="Third Degree Polynomial Regression" class="graphs">
+        <img src="imgs/svr.png" alt="Single Vector Regression" class="graphs">
+        <p class="caption"><strong>Figure 5:</strong> Third Degree Polynomial Regression Plot &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>Figure 6:</strong> Single Vector Regression Plot </p>
+        <br>
+
+        <h2>Why We Chose Regression and RNN</h2>
+        <ul class="roman">
+          <li>For regression, we had tried out multiple different types of regression: linear, polynomial of degree 2, polynomial of degree 3, and support vector regression. All of the more complex models seem to boil down to a linear model, but have multiple different lines to fit more to the training data. For regression, we choose a linear model because it is able to approximate as good if not better than the more complex models, but does not overfit as much. Our data does not have any protected attributes that we know of.
+          </li>
+          <li>We chose to use RNN models as well because they learn to use data they have seen in the past to predict the next stock price. For the stock market, this intuitively makes sense because stock prices many hours in the past may contribute to how the current price will move.
+          </li>
+        </ul>
+
+
+    </body>
+</html>
