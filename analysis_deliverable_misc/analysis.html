@@ -6,7 +6,7 @@
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
-        <img src="imgs/elon_factory_crop.jpg" alt="Tesla Cover" class="tesla_wrapper">
+        <img src="imgs/elon_cybertruck.jpg" alt="Tesla Cover" class="tesla_wrapper">
         <p>
         <meta charset="utf-8">
         </p>
@@ -51,9 +51,16 @@
           </li>
           <li>We believe our regression model had a lackluster prediction accuracy because other confounding factors like previous stock price are also relevant while our regression only took into account twitter sentiment at a specific point in time. This resulted in a distribution that looked vaguely uniform and random indicating that linear regression with these variables will not be very useful. We found that the r_squared value was quite low, with a testing MSE on the linear regression of -0.16. We believe that the correlation between the two variables is minimal, but it is important to note that we cannot be that confident in our results due to our data collection. Since we were not able to capture more tweets due to Twitter API limitations, our dataset was much smaller, meaning that there is a chance that our data is not able to capture the correlation between our two variables.
           </li>
+          <img src="imgs/mse.png" alt="MSE Terminal" class="other">
+          <p class="caption"><strong>Figure 2:</strong> MSE and R_squared for Regression Analyses
+          <br>
           <li>Preliminary results using an RNN shows that it seems to overfit heavily on the training data, while seeming to perform worse on the testing data over time. Training MSE did decrease over time, but testing MSE was increasing over time. This seems to suggest that our model’s architecture needs to be changed in some way to prevent this overfitting.
           </li>
         </ul>
+
+        <img src="imgs/combined_raw_plot.png" alt="Combined Raw Plot" class="full_size">
+        <p class="caption"><strong>Figure 3:</strong> Combined Raw Plot of Twitter Sentiment and TSLA Stock Price
+        <br>
 
         <h2>Visualizations</h2>
         <ul class="roman">
@@ -67,18 +74,16 @@
           </li>
         </ul>
 
-        <img src="imgs/combined_raw_plot.png" alt="Combined Raw Plot" class="full_size">
-        <p class="caption"><strong>Figure 2:</strong> Combined Raw Plot of Twitter Sentiment and TSLA Stock Price
         <br>
 
         <img src="imgs/linear_regression.png" alt="Linear Regression" class="graphs">
         <img src="imgs/polynomial_2.png" alt="Second Degree Polynomial Regression" class="graphs">
-        <p class="caption"><strong>Figure 3:</strong> Linear Regression Plot &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>Figure 4:</strong> Second Degree Polynomial Regression Plot </p>
+        <p class="caption"><strong>Figure 4:</strong> Linear Regression Plot &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>Figure 5:</strong> Second Degree Polynomial Regression Plot </p>
         <br>
 
         <img src="imgs/polynomial_3.png" alt="Third Degree Polynomial Regression" class="graphs">
         <img src="imgs/svr.png" alt="Single Vector Regression" class="graphs">
-        <p class="caption"><strong>Figure 5:</strong> Third Degree Polynomial Regression Plot &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>Figure 6:</strong> Single Vector Regression Plot </p>
+        <p class="caption"><strong>Figure 6:</strong> Third Degree Polynomial Regression Plot &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>Figure 7:</strong> Single Vector Regression Plot </p>
         <br>
 
         <h2>Why We Chose Regression and RNN</h2>
