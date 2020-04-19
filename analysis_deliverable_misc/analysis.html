@@ -16,12 +16,17 @@
         <p><br></p>
         <h2>Prediction Task and Metrics for Success</h2>
         <ul class="roman">
-          <li>Prediction Task: Provided Twitter sentiment data for each hour in the time period of February 6th, 2020, to March 6th, 2020, predict the price of one TSLA share.
+          <li>In stock trading, a huge part of algorithmic trading is creating models to determine how particular share prices of companies will change in the future. Since there are near infinite variables that could affect a company’s share price, determining a good model that is able to make the most money is a very difficult problem to solve. In our case, we wanted to focus on a particularly volatile stock, Tesla. The face and CEO of Tesla, Elon Musk, often uses Twitter to announce next steps in Tesla innovation and he has amassed a large online following that talks about the state of Tesla on twitter. The way a CEO acts online often reflects on the company and twitter reactions to Musk and his company may be a quick way to determine how people feel about the company at a certain point in time. Therefore, we wanted to see if Twitter sentiment could be a useful predictor for the Tesla stock. Being successful in this task could increase profitability by being able to account for how Twitter may affect stock price, reducing the unexplained volatility that stems from TSLA stock at this point in time for a particular trader or company.
+          </li>
+          <li><b>Our prediction task is as follows:</b> Provided Twitter sentiment data and possibly Tesla share price for each hour in the time period of February 6th, 2020, to March 6th, 2020, predict the next price of one TSLA share. 
+
           <ul class="square">
-            <li>Metrics for success: We sought to find a model that is able to maximize our r_squared values, while minimizing our mean squared error.</li>
+            <li>For regression, we planned on finding a model that is able to maximize our r_squared values, while minimizing our mean squared error when using a regression model. In addition, we manually will inspect the models to make sure that we are not overfitting or underfitting. We used twitter sentiment scores as our independent variable to predict the movement in the Tesla share price for one time step, which will be the dependent variable. </li>
+            <li>In our deep learning model, we plan on using a stock trading simulation where we compare the money made by our RNN prediction given only stock data against our RNN model’s predictions given both stock and Twitter data. In addition, for our RNN we also use mean-square error to evaluate how close our model is to both the training and the testing data.
+            </li>
           </ul>
           </li>
-          <li>Later on, in our deep learning model, we plan on using a stock trading simulation where we compare the money made by our RNN prediction given only stock data against our RNN model’s predictions given both stock and Twitter data. In addition, for our RNN we also use mean-square error to evaluate how close our model is to both the training and the testing data.
+          <li>For both models, the objective is to make as much money as possible. Our goal of minimizing mean-square error helps this objective because a more accurate prediction allows for being able to correctly predict the direction of a stock, allowing our models to make more money.
           </li>
         </ul>
 
@@ -52,6 +57,7 @@
           </li>
           <li>We believe our regression model had a lackluster prediction accuracy because other confounding factors like previous stock price are also relevant while our regression only took into account twitter sentiment at a specific point in time. This resulted in a distribution that looked vaguely uniform and random indicating that linear regression with these variables will not be very useful. We found that the r_squared value was quite low, with a testing MSE on the linear regression of -0.16. We believe that the correlation between the two variables is minimal, but it is important to note that we cannot be that confident in our results due to our data collection. Since we were not able to capture more tweets due to Twitter API limitations, our dataset was much smaller, meaning that there is a chance that our data is not able to capture the correlation between our two variables.
           </li>
+          <li>Another factor in the performance of the regression model is that not all traders use Twitter and not all people on Twitter who comment about Tesla trade stocks. This means that we are using data from one population, Twitter users, for use in predicting the behavior of another population, people who trade stocks when these populations aren’t the same.</li>
           <img src="imgs/mse.png" alt="MSE Terminal" class="other">
           <p class="caption"><strong>Figure 2:</strong> MSE and R_squared for Regression Analyses
           <br>
@@ -73,6 +79,7 @@
           </li>
           <li>One of the challenges visualizing our results was the presence of outliers which affected our regression analysis. We removed values with a z-score bigger than 3. We found that 5 of our points were outliers. After removing these, our data seemed to be very uniformly random, suggesting that there is not a correlation between the two variables.
           </li>
+          <li>We plan on improving our visualizations for the final poster. For the analysis deliverable, we included bare bones visualizations to showcase the progress we have made and to explain our results. For our final poster, we will make the visualizations more appealing and accessible. Additionally, we will have more visualizations once our RNN is finished.</li>
         </ul>
 
         <br>
@@ -89,7 +96,7 @@
 
         <h2>Why We Chose Regression and RNN</h2>
         <ul class="roman">
-          <li>For regression, we had tried out multiple different types of regression: linear, polynomial of degree 2, polynomial of degree 3, and support vector regression. All of the more complex models seem to boil down to a linear model, but have multiple different lines to fit more to the training data. For regression, we choose a linear model because it is able to approximate as good if not better than the more complex models, but does not overfit as much. Our data does not have any protected attributes that we know of.
+          <li>For regression, we had tried out multiple different types of regression: linear, polynomial of degree 2, polynomial of degree 3, and support vector regression. All of the more complex models seem to boil down to a linear model, but have multiple different lines to fit more to the training data. For regression, we choose a linear model because it is able to approximate as good if not better than the more complex models, but does not overfit as much. Our data does not have any protected attributes that we know of. In addition, we will update the visualizations to look more visually appealing in the final poster. At this moment in time, we wanted to get the information down first and adjust our plots to be pretty later on since we believed that having substance was more important at this point in the project.
           </li>
           <li>In the future, we plan on using a deep learning RNN model as well because they learn to use data they have seen in the past to predict the next stock price. For the stock market, this intuitively makes sense because stock prices many hours in the past may contribute to how the current price will move. While we have not explicitly included it in this deliverable, we have already written a simulation trading script given the predicted RNN stock price graph are actively testing and tweaking our RNN to get the best results possible. We plan on using these visualizations in our poster to demonstrate how there is not really much correlation between the TSLA stock price and twitter sentiment, but it could be one small factor in a group of many different factors that influence Tesla's stock price. The trading script will allow us to evaluate how are model has trained in the future and provide us visualizations of many different models.
           </li>
