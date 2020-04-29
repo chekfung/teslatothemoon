@@ -15,6 +15,8 @@ class Stock_RNN(tf.keras.Model):
 		self.model.add(tf.keras.layers.Dropout(0.2))
 		self.model.add(tf.keras.layers.LSTM(64, return_sequences=False)) # LSTM layer
 		self.model.add(tf.keras.layers.Dropout(0.2))
+		self.model.add(tf.keras.layers.LSTM(32, return_sequences=False)) # LSTM layer
+		self.model.add(tf.keras.layers.Dropout(0.2))
 		self.model.add(tf.keras.layers.Dense(16, use_bias=True, kernel_initializer='uniform', activation='relu')) # Dense layer
 		self.model.add(tf.keras.layers.Dense(1, use_bias=True, kernel_initializer='uniform')) # Dense layer
 	@tf.function
