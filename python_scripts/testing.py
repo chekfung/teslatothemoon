@@ -12,6 +12,9 @@ from preprocess import Preprocess
 # Playing around with seaborn
 import seaborn as sns
 
+sns.set_style("ticks")
+sns.set_style("darkgrid")
+
 # # Get the data
 # STOCK_DATABASE_PATH = "../data/stock_data.db"
 # RNN_DATABASE_PATH = "../data/rnn_data.db"
@@ -23,9 +26,11 @@ import seaborn as sns
 
 x, y, z = np.random.rand(3, 100)
 
-cmap = sns.cubehelix_palette(as_cmap=True)
+#cmap = sns.cubehelix_palette(as_cmap=True)
+cmap = sns.diverging_palette(10, 133, sep=3, as_cmap=True, center="dark")
+#cmap = sns.light_palette("green", as_cmap=True)
 
 f, ax = plt.subplots()
-points = ax.scatter(x, y, c=z, s=50, cmap=cmap)
-f.colorbar(points)
+points = ax.scatter(x, y, c=z, s=50, cmap=cmap, marker="8")
+f.colorbar(points, label="meow")
 plt.show()
