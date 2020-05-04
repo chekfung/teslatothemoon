@@ -1,32 +1,33 @@
 import pandas as pd
 import numpy as np
 import sqlite3
-
-import nltk
-
-
 import numpy as np
-
+import sys
 import os
 import re
 from PIL import Image
 from os import path
+
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import SnowballStemmer
+from nltk.tokenize import RegexpTokenizer
+
 from wordcloud import WordCloud, ImageColorGenerator
 import matplotlib.pyplot as plt
 from collections import Counter
+from textblob import TextBlob
 
 try:
 	nltk.data.find('corpora/stopwords')
 except LookupError:
 	nltk.download('stopwords')
 
-from nltk.corpus import stopwords
-from nltk.stem import SnowballStemmer
-from nltk.tokenize import RegexpTokenizer
-
 set(stopwords.words('english'))
 
-conn = sqlite3.connect("C:\\Users\\nealm\\OneDrive\\Documents\\GitHub\\teslatothemoon\\data\\stock_data.db")
+path = os.path.dirname(sys.path[0])
+path = os.path.join(path, "data", "stock_data.db")
+conn = sqlite3.connect(path)
 
 tweets = pd.read_sql("SELECT * FROM Tweets", conn)
 conn.close()
@@ -70,27 +71,45 @@ def process_document(text):
 
 
 processed_tweets = process_document(tweet_str)
+print("Tweets Processed")
 
+# Create dictionary that keeps track of counts of words in tweets
 word_dict = Counter()
 
 for elm in processed_tweets:
     word_dict[elm] += 1
+print("Counts Dictionary Finished")
+
+def color_func(word, font_size, position, orientation, random_state=None, **kwargs):
+	blob = TextBlob(word)
+	polarity = blob.sentiment.polarity
+	# Negative sentiment
+	if polarity < 0:
+		# Red
+		color = "rgb({},0,0)".format(int(np.round(np.abs(polarity) * 255)))
+	else:
+		# Green
+		color = "rgb(0,{},0)".format(int(np.round(np.abs(polarity) * 255)))
+	
+	if polarity == 0:
+		color = "rgb(0,0,0)"
+	return color
 
 
 def makeImage(text):
-    tesla_mask = np.array(Image.open("C:\\Users\\nealm\\OneDrive\\Documents\\GitHub\\teslatothemoon\\images\\tesla-motors-logo.jpg"))
+	path = os.path.join(os.path.dirname(sys.path[0]), "images", "tesla-motors-logo.jpg")
+	tesla_mask = np.array(Image.open(path))
 
-    wc = WordCloud(background_color="white", max_words=250, mask=tesla_mask)
-    # generate word cloud
-    wc.generate_from_frequencies(text)
+	wc = WordCloud(background_color="white", max_words=200, mask=tesla_mask)
+	# generate word cloud
+	wc.generate_from_frequencies(text)
 
-    # show
-    image_colors = ImageColorGenerator(tesla_mask)
-    plt.imshow(wc.recolor(color_func=image_colors), interpolation="bilinear")
-    plt.axis("off")
-    plt.show()
-
-
+	# show
+	#image_colors = ImageColorGenerator(tesla_mask)
+	plt.imshow(wc.recolor(color_func=color_func), interpolation="bilinear")
+	plt.axis("off")
+	#plt.savefig(os.path.join(os.path.dirname(sys.path[0]), "images", "word_cloud"))
+	plt.show()
 
 makeImage(word_dict)
 
