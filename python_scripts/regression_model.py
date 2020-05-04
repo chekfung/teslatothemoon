@@ -233,3 +233,14 @@ plt.title("Multiple Regression of Tesla Stock Price Vs. Twitter Sentiment Score"
 plt.xlabel('Twitter Sentiment')
 plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
 plt.show()
+
+# =========================================================================== #
+# Seaborn Heatmap
+p_values = results.pvalues
+data = np.asarray(p_values.to_numpy()).reshape(5,1)
+
+sns.heatmap(data, vmax=0.6, annot=True)
+plt.show()
+# =========================================================================== #
+
+
