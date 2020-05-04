@@ -5,12 +5,13 @@ import pandas as pd
 from preprocess import Preprocess
 
 # Regression Model Imports
-from sklearn.linear_model import LinearRegression 
-from sklearn.preprocessing import PolynomialFeatures 
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
 from sklearn.svm import SVR
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
-import statsmodels.api as sm 
+import statsmodels.api as sm
 from statsmodels.tools import eval_measures
 
 # Preprocess the data
@@ -18,8 +19,9 @@ STOCK_DATABASE_PATH = "../data/stock_data.db"
 RNN_DATABASE_PATH = "../data/rnn_data.db"
 x = Preprocess(STOCK_DATABASE_PATH, RNN_DATABASE_PATH)
 numpy_data, df_data, numpy_vanilla_rnn_data, df_vanilla_rnn_data = x.get_data()
+sns.set_style("ticks")
+sns.set_style("darkgrid")
 
-# =========================================================================== #
 # Lets try and make a histogram of the twitter sentiment
 twitter_sentiment = df_data["Twitter Score"]
 twitter_sentiment.plot.hist(grid=True, bins=20, rwidth=0.9,
@@ -30,20 +32,29 @@ plt.ylabel('Counts')
 plt.grid(axis='y', alpha=0.75)
 plt.show()
 
+# Seaborn Histogram
+# Histogram of Sentiments
+sns.distplot(np.array(df_data['Twitter Score']), kde=False, color="#D50E1D", axlabel="Twitter Sentiment Scores").set_title("Distribution of Twitter Sentiment Scores")
+plt.savefig("../images/sentiment_histogram.png")
+plt.show()
+
+
+
+
 # ============================================================================ #
 # Graphing the raw sentiment vs. the stock price
 #avg_stock = (df_data["High"] + df_data["Low"]) / 2
 close = df_data["Close"]
 sentiment = df_data["Twitter Score"]
 
-plt.scatter(sentiment, close, color = 'green') 
+plt.scatter(sentiment, close, color = 'green')
 plt.title("Raw Plot of Sentiment Vs. Close Price for TSLA")
 plt.xlabel("Sentiment")
 plt.ylabel("Close Price (USD)")
 plt.show()
 
 # =========================================================================== #
-# This is an attempt to get rid of outliers and then view what it looks like 
+# This is an attempt to get rid of outliers and then view what it looks like
 
 # Compute bounds with z score abs(3) to get rid of outliers
 a = df_data['Twitter Score'].to_numpy()
@@ -66,11 +77,11 @@ X = new_df[["Open", "Close", "Adj Close", "Twitter Score"]]
 
 # Shift to get the previous data as next time step X
 X[["Open",  "Close", "Adj Close"]] = X[["Open", "Close", "Adj Close"]].shift(-1)
-y =  new_df["Close"] 
+y =  new_df["Close"]
 
 # Remove last step that now has a NaN in shifted values
-X = X[:-1] 
-y = y[:-1] 
+X = X[:-1]
+y = y[:-1]
 
 # Manually make test_size last 20 percent
 dataset_size = len(X)
@@ -117,16 +128,26 @@ print('Training R-squared:', r2_score(y_train, lin.predict(X_train)))
 print('Testing R-squared:', r2_score(y_test, lin.predict(X_test)))
 print('\n')
 
-plt.scatter(test_hours, y_test, color = 'blue') 
-plt.plot(test_hours, lin.predict(X_test), color = 'red') 
-plt.title('Linear Regression of Stock Price vs. Twitter Sentiment') 
+plt.scatter(test_hours, y_test, color = 'blue')
+print(y_test)
+plt.plot(test_hours, lin.predict(X_test), color = 'red')
+plt.title('Linear Regression of Stock Price vs. Twitter Sentiment')
 plt.legend(['Predicted Model','Raw data'], loc='best')
-plt.xlabel('Twitter Sentiment') 
-plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)') 
+plt.xlabel('Twitter Sentiment')
+plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
+plt.show()
+
+# Seaborn
+ax = sns.scatterplot(x=test_hours, y=y_test)
+sns.lineplot(x=test_hours, y=lin.predict(X_test),
+             ax=ax).set_title("Linear Regression of Stock Price vs. Twitter Sentiment")
+plt.legend(['Predicted Model','Raw data'], loc='best')
+plt.xlabel('Twitter Sentiment')
+plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
 plt.show()
 
 # ============================================================================ #
-#Testing to see whether or not the statsmodel produces anything different 
+#Testing to see whether or not the statsmodel produces anything different
 # Manually make test_size last 20 percent
 
 nX_train = X_train.astype(float)
@@ -137,7 +158,7 @@ ny_test = y_test.astype(float)
 # Try to see if statsmodels has anything different it can provide us
 modified_x = sm.add_constant(nX_train)
 model = sm.OLS(ny_train, modified_x)
-results = model.fit() 
+results = model.fit()
 
 # INFLUENCE PLOT
 #fig, ax = plt.subplots(figsize=(12,8))
@@ -167,13 +188,13 @@ print("Test MSE:", str(test_mse))
 # ============================================================================ #
 # Polynomial Regression with degree 2
 
-poly = PolynomialFeatures(degree = 2) 
-X_poly_train = poly.fit_transform(X_train) 
+poly = PolynomialFeatures(degree = 2)
+X_poly_train = poly.fit_transform(X_train)
 X_poly_test = poly.fit_transform(X_test)
-  
-poly.fit(X_poly_train, y_train) 
-lin2 = LinearRegression() 
-lin2.fit(X_poly_train, y_train) 
+
+poly.fit(X_poly_train, y_train)
+lin2 = LinearRegression()
+lin2.fit(X_poly_train, y_train)
 
 print('Polynomial Regression Degree 2 Training MSE:', mean_squared_error(y_train, lin2.predict(X_poly_train)))
 print('Polynomial Regression Degree 2 Testing MSE:', mean_squared_error(y_test, lin2.predict(X_poly_test)))
@@ -181,14 +202,23 @@ print('Polynomial Regression Degree 2 Training R-squared:', r2_score(y_train, li
 print('Polynomial Regression Degree 2 Testing R-squared:', r2_score(y_test, lin2.predict(X_poly_test)))
 print('\n')
 
-plt.scatter(test_hours, y_test, color = 'blue') 
-  
-plt.plot(test_hours, lin2.predict(poly.fit_transform(X_test)), color = 'red') 
-plt.title('Polynomial Regression (2nd degree) of Stock Price vs. Twitter Sentiment') 
+plt.scatter(test_hours, y_test, color = 'blue')
+
+plt.plot(test_hours, lin2.predict(poly.fit_transform(X_test)), color = 'red')
+plt.title('Polynomial Regression (2nd degree) of Stock Price vs. Twitter Sentiment')
 plt.legend(['Predicted Model','Raw data'], loc='best')
-plt.xlabel('Twitter Sentiment') 
-plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)') 
-  
+plt.xlabel('Twitter Sentiment')
+plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
+
+plt.show()
+
+# Seaborn
+ax = sns.scatterplot(x=test_hours, y=y_test)
+sns.lineplot(x=test_hours, y=lin2.predict(poly.fit_transform(X_test)),
+             ax=ax).set_title('Polynomial Regression (2nd degree) of Stock Price vs. Twitter Sentiment')
+plt.legend(['Predicted Model','Raw data'], loc='best')
+plt.xlabel('Twitter Sentiment')
+plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
 plt.show()
 
 # ============================================================================ #
@@ -203,15 +233,21 @@ plt.show()
 # print('Support Vector Regression Testing R-squared:', r2_score(y_test, clf.predict(X_test)))
 # print('\n')
 
-# plt.scatter(test_hours, y_test, color = 'blue') 
-  
-# plt.plot(test_hours, clf.predict(X_test), color = 'red') 
-# plt.title('Support Vector Regression of Stock Price vs. Twitter Sentiment') 
+# plt.scatter(test_hours, y_test, color = 'blue')
+
+# plt.plot(test_hours, clf.predict(X_test), color = 'red')
+# plt.title('Support Vector Regression of Stock Price vs. Twitter Sentiment')
 # plt.legend(['Predicted Model','Raw data'], loc='best')
-# plt.xlabel('Twitter Sentiment') 
-# plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)') 
+# plt.xlabel('Twitter Sentiment')
+# plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
 
 # plt.show()
 
-
-
+# Seaborn
+ax = sns.scatterplot(x=test_hours, y=y_test)
+sns.lineplot(x=test_hours, y=clf.predict(X_test),
+             ax=ax).set_title("Support Vector Regression of Stock Price vs. Twitter Sentiment")
+plt.legend(['Predicted Model','Raw data'], loc='best')
+plt.xlabel('Twitter Sentiment')
+plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
+plt.show()

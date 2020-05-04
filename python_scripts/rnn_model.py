@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 import sqlite3
 import pandas as pd
+import matplotlib.pyplot as plt
 
 class Stock_RNN(tf.keras.Model):
 	def __init__(self, batch_size):
@@ -13,7 +14,7 @@ class Stock_RNN(tf.keras.Model):
 		
 		self.model.add(tf.keras.layers.LSTM(128, return_sequences=True)) # LSTM layer
 		self.model.add(tf.keras.layers.Dropout(0.2))
-		self.model.add(tf.keras.layers.LSTM(64, return_sequences=False)) # LSTM layer
+		self.model.add(tf.keras.layers.LSTM(64, return_sequences=True)) # LSTM layer
 		self.model.add(tf.keras.layers.Dropout(0.2))
 		self.model.add(tf.keras.layers.LSTM(32, return_sequences=False)) # LSTM layer
 		self.model.add(tf.keras.layers.Dropout(0.2))
@@ -87,7 +88,7 @@ def preprocess(train_data, test_data, train_prices, test_prices, window_size):
 if __name__=="__main__":
 	rnn = Stock_RNN(24)
 	TEST_PROB = 0.2
-	NUM_EPOCHS = 250
+	NUM_EPOCHS = 50
 	WINDOW_SIZE = 24
 	train_data, test_data, train_prices, test_prices = get_data(TEST_PROB)
 	train_data, test_data, train_prices, test_prices = preprocess(train_data, test_data, train_prices, test_prices, WINDOW_SIZE)
@@ -97,4 +98,10 @@ if __name__=="__main__":
 	print(np.shape(test_prices))
 	train(rnn, train_data, train_prices, test_data, test_prices, NUM_EPOCHS)
 	test(rnn, test_data, test_prices)
+	real = plt.plot(train_prices, label='real')
+	pred = plt.plot(rnn(train_data), label='predicted')
+	
+	plt.legend(['Real', 'Predicted'])
+	
+	plt.show()
 	
