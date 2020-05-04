@@ -28,7 +28,6 @@ set(stopwords.words('english'))
 path = os.path.dirname(sys.path[0])
 path = os.path.join(path, "data", "stock_data.db")
 conn = sqlite3.connect(path)
-
 tweets = pd.read_sql("SELECT * FROM Tweets", conn)
 conn.close()
 
@@ -60,7 +59,7 @@ def process_document(text):
 	tokens = tokenizer.tokenize(text)
 	# TODO: Remove stopwords
 	stop_words = stopwords.words('english')
-	extraneous_words = ["https", "co", "rt"]
+	extraneous_words = ["https", "co", "rt", "us", "get", "via", "let", "hey", "retweet", "also", "look", "like", "c", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "20", "000", "x"]
 	filtered_tokens = [w for w in tokens if not w in stop_words]
 	filtered_tokens_two = [w for w in filtered_tokens if not w in extraneous_words]
 
@@ -83,16 +82,24 @@ print("Counts Dictionary Finished")
 def color_func(word, font_size, position, orientation, random_state=None, **kwargs):
 	blob = TextBlob(word)
 	polarity = blob.sentiment.polarity
+	bad_words = ["short", "crash", "28delayslater","sell", "never"]
+	good_words = ["long", "buy"]
 	# Negative sentiment
-	if polarity < 0:
+	if polarity < 0 or (word in bad_words):
 		# Red
-		color = "rgb({},0,0)".format(int(np.round(np.abs(polarity) * 255)))
-	else:
+		value = int(np.round(np.abs(polarity) * 255))
+		if word in bad_words:
+			value = 255
+		color = "rgb({},0,0)".format(value)
+	elif (polarity > 0 or (word in good_words)):
 		# Green
-		color = "rgb(0,{},0)".format(int(np.round(np.abs(polarity) * 255)))
-	
-	if polarity == 0:
+		value = int(np.round(np.abs(polarity) * 255))
+		if word in bad_words:
+			value = 255
+		color = "rgb(0,{},0)".format(value)
+	else:
 		color = "rgb(0,0,0)"
+
 	return color
 
 

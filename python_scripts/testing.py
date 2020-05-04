@@ -21,10 +21,6 @@ import seaborn as sns
 
 # # Get data in nice format with correct lagging 
 
-
-
-
-
 x, y, z = np.random.rand(3, 100)
 
 cmap = sns.cubehelix_palette(as_cmap=True)
