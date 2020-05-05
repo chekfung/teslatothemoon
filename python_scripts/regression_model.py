@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 import math
 import pandas as pd
 from preprocess import Preprocess
-
+import os 
+import sys
+import csv
 # Regression Model Imports
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
@@ -53,7 +55,7 @@ plt.show()
 # =========================================================================== #
 # This is an attempt to get rid of outliers and then view what it looks like
 
-# Compute bounds with z score abs(3) to get rid of outliers
+# Compute bounds with z score abs(3) 
 a = df_data['Twitter Score'].to_numpy()
 std = np.std(a)
 mean = np.mean(a)
@@ -83,11 +85,15 @@ y = y[:-1]
 # Manually make test_size last 20 percent
 dataset_size = len(X)
 split_point = int(np.round(dataset_size * 0.8))
-print("Split Point: ", split_point)
+
 X_train = X.iloc[:split_point,:]
 X_test = X.iloc[split_point:, :]
 y_train = y[:split_point]
 y_test = y[split_point:]
+
+# Without the twitter data X_train and X_test
+X_train_no_twit = X_train[["Open", "Close", "Adj Close"]]
+X_test_no_twit = X_test[["Open", "Close", "Adj Close"]]
 
 # Label test hours instead of using date time objects
 hours = np.arange(len(df_data['Date']))
@@ -119,20 +125,21 @@ lin = LinearRegression()
 lin.fit(X_train, y_train)
 print(lin.coef_)
 
-print('Training MSE:', mean_squared_error(y_train, lin.predict(X_train)))
-print('Testing MSE:', mean_squared_error(y_test, lin.predict(X_test)))
-print('Training R-squared:', r2_score(y_train, lin.predict(X_train)))
-print('Testing R-squared:', r2_score(y_test, lin.predict(X_test)))
+print('Linear Training MSE:', mean_squared_error(y_train, lin.predict(X_train)))
+print('Linear Testing MSE:', mean_squared_error(y_test, lin.predict(X_test)))
+print('Linear Training R-squared:', r2_score(y_train, lin.predict(X_train)))
+print('Linear Testing R-squared:', r2_score(y_test, lin.predict(X_test)))
 print('\n')
 
-# plt.scatter(test_hours, y_test, color = 'blue')
-# print(y_test)
-# plt.plot(test_hours, lin.predict(X_test), color = 'red')
-# plt.title('Linear Regression of Stock Price vs. Twitter Sentiment')
-# plt.legend(['Predicted Model','Raw data'], loc='best')
-# plt.xlabel('Twitter Sentiment')
-# plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
-# plt.show()
+# Without Twitter Data Linear Regression
+lin_no_twitter = LinearRegression()
+lin_no_twitter.fit(X_train_no_twit, y_train)
+
+print('Linear No Twitter Training MSE:', mean_squared_error(y_train, lin_no_twitter.predict(X_train_no_twit)))
+print('Linear No Twitter Testing MSE:', mean_squared_error(y_test, lin_no_twitter.predict(X_test_no_twit)))
+print('Linear No Twitter Training R-squared:', r2_score(y_train, lin_no_twitter.predict(X_train_no_twit)))
+print('Linear No Twitter Testing R-squared:', r2_score(y_test, lin_no_twitter.predict(X_test_no_twit)))
+print('\n')
 
 # Seaborn
 ax = sns.scatterplot(x=test_hours, y=y_test)
@@ -142,6 +149,21 @@ plt.legend(['Predicted Model','Raw data'], loc='best')
 plt.xlabel('Twitter Sentiment')
 plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
 plt.show()
+
+# Save Linear Regression Values in CSV
+filename = "linear_regression.csv"
+path = os.path.join(os.path.dirname(sys.path[0]), "csv", filename)
+predicted = lin.predict(X_test)
+predicted_no_twitter = lin_no_twitter.predict(X_test_no_twit)
+truth = y_test
+
+with open(path, 'w') as file:
+    writer = csv.writer(file)
+    writer.writerow(["Test Hour", "Predicted Price", "No Twitter Predicted Price", "Actual Price"])
+
+    for i in range(test_hours.shape[0]):
+        writer.writerow([test_hours[i], predicted[i], predicted_no_twitter[i], truth.iloc[i]])
+
 
 # ============================================================================ #
 #Testing to see whether or not the statsmodel produces anything different
@@ -198,6 +220,18 @@ print('Polynomial Regression Degree 2 Training R-squared:', r2_score(y_train, li
 print('Polynomial Regression Degree 2 Testing R-squared:', r2_score(y_test, lin2.predict(X_poly_test)))
 print('\n')
 
+# Without Twitter Data Linear Regression
+X_no_twitter_train = poly.fit_transform(X_train_no_twit)
+X_no_twitter_test = poly.fit_transform(X_test_no_twit)
+poly2_no_twitter = LinearRegression()
+poly2_no_twitter.fit(X_no_twitter_train, y_train)
+
+print('Polynomial No Twitter Training MSE:', mean_squared_error(y_train, poly2_no_twitter.predict(X_no_twitter_train)))
+print('Polynomial No Twitter Testing MSE:', mean_squared_error(y_test, poly2_no_twitter.predict(X_no_twitter_test)))
+print('Polynomial No Twitter Training R-squared:', r2_score(y_train, poly2_no_twitter.predict(X_no_twitter_train)))
+print('Polynomial No Twitter Testing R-squared:', r2_score(y_test, poly2_no_twitter.predict(X_no_twitter_test)))
+print('\n')
+
 # plt.scatter(test_hours, y_test, color = 'blue')
 # plt.plot(test_hours, lin2.predict(poly.fit_transform(X_test)), color = 'red')
 # plt.title('Polynomial Regression (2nd degree) of Stock Price vs. Twitter Sentiment')
@@ -214,6 +248,21 @@ plt.legend(['Predicted Model','Raw data'], loc='best')
 plt.xlabel('Twitter Sentiment')
 plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
 plt.show()
+
+# Save Polynomial Regression Values in CSV
+filename = "polynomial_regression.csv"
+path = os.path.join(os.path.dirname(sys.path[0]), "csv", filename)
+predicted = lin2.predict(X_poly_test)
+x_test_poly_no_twit = poly.fit_transform(X_test_no_twit)
+predict_no_twit = poly2_no_twitter.predict(x_test_poly_no_twit)
+truth = y_test
+
+with open(path, 'w') as file:
+    writer = csv.writer(file)
+    writer.writerow(["Test Hour", "Predicted Price", "No Twitter Predicted Price", "Actual Price"])
+
+    for i in range(test_hours.shape[0]):
+        writer.writerow([test_hours[i], predicted[i], predict_no_twit[i], truth.iloc[i]])
 
 # =========================================================================== #
 # Combined linear and polynomial plot
