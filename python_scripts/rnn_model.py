@@ -8,7 +8,7 @@ class Stock_RNN(tf.keras.Model):
     def __init__(self, batch_size):
         super(Stock_RNN, self).__init__()
 
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate = 0.1, beta_1=0.5, beta_2=0.9) # Optimizer
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate = 0.01, beta_1=0.5, beta_2=0.9) # Optimizer
         self.batch_size = batch_size # Take one day's worth of data at a time
         self.model = tf.keras.Sequential()
         
@@ -20,6 +20,7 @@ class Stock_RNN(tf.keras.Model):
         #self.model.add(tf.keras.layers.Dropout(0.2))
         #self.model.add(tf.keras.layers.Dense(16, use_bias=True, kernel_initializer='uniform', activation='relu')) # Dense layer
         #self.model.add(tf.keras.layers.Dense(1, use_bias=True, kernel_initializer='uniform')) # Dense layer
+        
         self.model.add(tf.keras.layers.Conv2D(20, 2, padding='same'))
         self.model.add(tf.keras.layers.Dropout(0.2))
         self.model.add(tf.keras.layers.Conv2D(40, 2, strides=(2,2), padding='same'))
@@ -106,14 +107,9 @@ if __name__=="__main__":
     print(np.shape(test_data))
     print(np.shape(train_prices))
     print(np.shape(test_prices))
-    print("train",train_data[0])
-    print("test",train_data[1])
     train(rnn, train_data, train_prices, test_data, test_prices, NUM_EPOCHS)
     test(rnn, test_data, test_prices)
     real = plt.plot(test_prices, label='real')
-    print(test_prices)
-    print('test results',rnn(test_data))
-    print('train results',rnn(train_data))
     pred = plt.plot(rnn(test_data), label='predicted')
     
     plt.legend(['Real', 'Predicted'])
