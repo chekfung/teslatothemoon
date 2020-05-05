@@ -118,5 +118,5 @@ def makeImage(text):
 	plt.savefig(os.path.join(os.path.dirname(sys.path[0]), "images", "word_cloud"), dpi=300)
 	plt.show()
 
-makeImage(word_dict)
+makeImage(word_dict) 
 
