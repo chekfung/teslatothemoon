@@ -119,4 +119,3 @@ def makeImage(text):
 	plt.show()
 
 makeImage(word_dict)
-

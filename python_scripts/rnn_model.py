@@ -16,7 +16,9 @@ class Stock_RNN(tf.keras.Model):
         self.model.add(tf.keras.layers.Dropout(0.2))
         self.model.add(tf.keras.layers.LSTM(64, return_sequences=True)) # LSTM layer
         self.model.add(tf.keras.layers.Dropout(0.2))
-        self.model.add(tf.keras.layers.LSTM(32, return_sequences=False)) # LSTM layer
+        self.model.add(tf.keras.layers.Flatten())
+        self.model.add(tf.keras.layers.Dense(100, use_bias=True, activation='relu')) # Dense layer
+        self.model.add(tf.keras.layers.Dense(100, use_bias=True, activation='relu'))
         self.model.add(tf.keras.layers.Dropout(0.2))
         self.model.add(tf.keras.layers.Dense(16, use_bias=True, kernel_initializer='uniform', activation='relu')) # Dense layer
         self.model.add(tf.keras.layers.Dense(1, use_bias=True, kernel_initializer='uniform')) # Dense layer
@@ -108,10 +110,11 @@ if __name__=="__main__":
     print(np.shape(test_data))
     print(np.shape(train_prices))
     print(np.shape(test_prices))
+    #train_data, train_prices = np.arange(441).reshape((441,1)).astype(np.float32), np.arange(441).reshape((441,1)).astype(np.float32)
     train(rnn, train_data, train_prices, test_data, test_prices, NUM_EPOCHS)
     test(rnn, test_data, test_prices)
-    real = plt.plot(test_prices, label='real')
-    pred = plt.plot(rnn(test_data), label='predicted')
+    real = plt.plot(train_prices, label='real')
+    pred = plt.plot(rnn(train_data), label='predicted')
     
     plt.legend(['Real', 'Predicted'])
     
