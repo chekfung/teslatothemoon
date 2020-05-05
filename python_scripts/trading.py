@@ -3,12 +3,15 @@ import numpy as np
 import math
 import sqlite3
 import matplotlib.pyplot as plt
+from matplotlib import rcParams
+rcParams.update({'figure.autolayout': True})
 import os
 import sys
 import pandas
 import seaborn as sns
 
 sns.set()
+sns.set_style("ticks")
 
 # TODO: 
 #   1.) I have to import the stock data (that can just be an internal function)
@@ -94,7 +97,29 @@ class StockTradingObj:
         '''
         if (len(self.datetime) != len(self.actual_lst)) or (len(self.datetime) != len(self.optimal_lst)):
             raise Exception('Datetime and actual_lst are not equal!')
-
+        
+        actual_df = pd.DataFrame({"datetime": self.datetime, "balance": self.actual_lst})
+        actual_df["Trader"] = "Predicted Model Trader with Twitter Data"
+        baseline_df = pd.DataFrame({"datetime": self.datetime, "balance": self.baseline_lst})
+        baseline_df["Trader"] = "Baseline Trader without Twitter Data"
+        optimal_df = pd.DataFrame({"datetime": self.datetime, "balance": self.optimal_lst})
+        optimal_df["Trader"] = "Optimal Trader"
+        random_df = pd.DataFrame({"datetime": self.datetime, "balance": self.random_lst})
+        random_df["Trader"] = "Random Trader"
+        final_df = pd.concat([actual_df, baseline_df, optimal_df, random_df])
+        
+        palette = dict(zip(final_df["Trader"].unique(),
+                   sns.color_palette("rocket_r", 4)))
+        #plt.figure(figsize=(20,5))
+        sns.relplot(data=final_df, x="datetime", y="balance", hue="Trader", palette=palette, 
+                    kind="line", legend=False)
+        plt.legend(['Predicted Model Trader with Twitter Data', 'Baseline Trader without Twitter Data', 'Optimal Trader', 'Random Trader'],
+                   loc="upper left")
+        plt.xlabel('Trading Hours (3/2 - 3/6)')
+        plt.ylabel('Total Account Balance on Platform (USD)')
+        plt.title('Twitter Sentiment Trading Strategies on TESLA over 3/2 - 3/6'.format(self.initial_cash))
+        #plt.savefig("../images/trading_comp.png", dpi=300)
+        plt.show()
         # If everything else is fine, continue
         plt.figure(1)
         plt.plot(self.datetime, self.actual_lst)
@@ -423,9 +448,9 @@ def main():
     INITIAL_MONEY = 10000
 
     # Try trading on the regression stock
-    FILENAME = "polynomial_regression.csv"
+    FILENAME = "../csv/polynomial_regression.csv"
     path = os.path.join(os.path.dirname(sys.path[0]), "csv", FILENAME)
-    df = pd.read_csv(path)
+    df = pd.read_csv(FILENAME)
 
     # Baseline: "No Twitter Predicted Price"
 
