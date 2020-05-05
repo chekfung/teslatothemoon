@@ -12,24 +12,26 @@ class Stock_RNN(tf.keras.Model):
         self.batch_size = batch_size # Take one day's worth of data at a time
         self.model = tf.keras.Sequential()
         
-        #self.model.add(tf.keras.layers.LSTM(128, return_sequences=True)) # LSTM layer
-        #self.model.add(tf.keras.layers.Dropout(0.2))
-        #self.model.add(tf.keras.layers.LSTM(64, return_sequences=True)) # LSTM layer
-        #self.model.add(tf.keras.layers.Dropout(0.2))
-        #self.model.add(tf.keras.layers.LSTM(32, return_sequences=False)) # LSTM layer
-        #self.model.add(tf.keras.layers.Dropout(0.2))
-        #self.model.add(tf.keras.layers.Dense(16, use_bias=True, kernel_initializer='uniform', activation='relu')) # Dense layer
-        #self.model.add(tf.keras.layers.Dense(1, use_bias=True, kernel_initializer='uniform')) # Dense layer
-        
-        self.model.add(tf.keras.layers.Conv2D(20, 2, padding='same'))
+        self.model.add(tf.keras.layers.LSTM(128, return_sequences=True)) # LSTM layer
         self.model.add(tf.keras.layers.Dropout(0.2))
-        self.model.add(tf.keras.layers.Conv2D(40, 2, strides=(2,2), padding='same'))
+        self.model.add(tf.keras.layers.LSTM(64, return_sequences=True)) # LSTM layer
         self.model.add(tf.keras.layers.Dropout(0.2))
         self.model.add(tf.keras.layers.Flatten())
         self.model.add(tf.keras.layers.Dense(100, use_bias=True, activation='relu')) # Dense layer
         self.model.add(tf.keras.layers.Dense(100, use_bias=True, activation='relu'))
         self.model.add(tf.keras.layers.Dropout(0.2))
-        self.model.add(tf.keras.layers.Dense(1, use_bias=True)) # Dense layer
+        self.model.add(tf.keras.layers.Dense(16, use_bias=True, kernel_initializer='uniform', activation='relu')) # Dense layer
+        self.model.add(tf.keras.layers.Dense(1, use_bias=True, kernel_initializer='uniform')) # Dense layer
+        
+        # self.model.add(tf.keras.layers.Conv2D(20, 2, padding='same'))
+        # self.model.add(tf.keras.layers.Dropout(0.2))
+        # self.model.add(tf.keras.layers.Conv2D(40, 2, strides=(2,2), padding='same'))
+        # self.model.add(tf.keras.layers.Dropout(0.2))
+        # self.model.add(tf.keras.layers.Flatten())
+        # self.model.add(tf.keras.layers.Dense(100, use_bias=True, activation='relu')) # Dense layer
+        # self.model.add(tf.keras.layers.Dense(100, use_bias=True, activation='relu'))
+        # self.model.add(tf.keras.layers.Dropout(0.2))
+        # self.model.add(tf.keras.layers.Dense(1, use_bias=True)) # Dense layer
         
     @tf.function
     def call(self, stock_input):
@@ -99,11 +101,11 @@ def preprocess(train_data, test_data, train_prices, test_prices, window_size):
 if __name__=="__main__":
     rnn = Stock_RNN(24)
     TEST_PROB = 0.2
-    NUM_EPOCHS = 100000
+    NUM_EPOCHS = 5000
     WINDOW_SIZE = 24
     train_data, test_data, train_prices, test_prices = get_data(TEST_PROB)
     train_data, test_data, train_prices, test_prices = preprocess(train_data, test_data, train_prices, test_prices, WINDOW_SIZE)
-    train_data, test_data, train_prices, test_prices = train_data[...,None], test_data[...,None], train_prices[...,None], test_prices[...,None]
+    #train_data, test_data, train_prices, test_prices = train_data[...,None], test_data[...,None], train_prices[...,None], test_prices[...,None]
     print(np.shape(train_data))
     print(np.shape(test_data))
     print(np.shape(train_prices))
