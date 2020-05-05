@@ -41,8 +41,9 @@ plt.show()
 
 # Seaborn Histogram
 # Histogram of Sentiments
-sns.distplot(np.array(df_data['Twitter Score']), hist_kws=dict(alpha=1), kde=False, color="#cc0000", axlabel="Twitter Sentiment Scores", bins=10).set_title("Distribution of Twitter Sentiment Scores")
-# plt.savefig("../images/sentiment_histogram.png", dpi=300)
+sns.distplot(np.array(df_data['Twitter Score']), hist_kws=dict(alpha=1), kde=False, color="#eda70e", axlabel="Twitter Sentiment Scores", bins=10).set_title("Distribution of Twitter Sentiment Scores")
+plt.ylabel("Count")
+plt.savefig("../images/sentiment_histogram.png", dpi=300)
 plt.show()
 
 # ============================================================================ #
@@ -156,9 +157,9 @@ ax = sns.scatterplot(x=test_hours, y=y_test, color="#558cf2")#f59505
 sns.lineplot(x=test_hours, y=lin.predict(X_test), color="#cc0000",
              ax=ax).set_title("Linear Regression of Stock Price vs. Twitter Sentiment")
 plt.legend(['Predicted Model','Raw data'], loc='best')
-plt.xlabel('Twitter Sentiment')
-plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
-# plt.savefig('../images/linear_regression.png', dpi=300)
+plt.xlabel('Days Since Start')
+plt.ylabel('TSLA Share Close Price - Open Price (USD)')
+plt.savefig('../images/linear_regression.png', dpi=300)
 plt.show()
 
 # # Save Linear Regression Values in CSV
@@ -256,9 +257,9 @@ ax = sns.scatterplot(x=test_hours, y=y_test, color="#558cf2")
 sns.lineplot(x=test_hours, y=lin2.predict(poly.fit_transform(X_test)),
              ax=ax, color="#cc0000").set_title('Polynomial Regression (2nd degree) of Stock Price vs. Twitter Sentiment')
 plt.legend(['Predicted Model','Raw data'], loc='best')
-plt.xlabel('Twitter Sentiment')
-plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
-# plt.savefig('../images/polynomial_regression.png', dpi=300)
+plt.xlabel('Days Since Start')
+plt.ylabel('TSLA Share Close Price - Open Price (USD)')
+plt.savefig('../images/polynomial_regression.png', dpi=300)
 plt.show()
 
 # # Save Polynomial Regression Values in CSV
@@ -282,7 +283,7 @@ cmap = sns.dark_palette("muted purple", input="xkcd", as_cmap=True)
 sentiment = X_test["Twitter Score"].astype(int).to_numpy()
 
 f, ax = plt.subplots()
-points = ax.scatter(test_hours, y_test, c=sentiment, s=50, cmap=cmap, marker="8")
+points = ax.scatter(test_hours, y_test, c=sentiment, s=30, cmap=cmap, marker="8")
 f.colorbar(points, label="Twitter Sentiment Score")
 #ax = sns.scatterplot(x=test_hours, y=y_test.to_numpy(), c=sentiment, cmap=cmap)
 sns.lineplot(x=test_hours, y=lin.predict(X_test),
@@ -291,8 +292,9 @@ sns.lineplot(x=test_hours, y=lin2.predict(poly.fit_transform(X_test)),
              ax=ax)
 plt.legend(['Polynomial Degree 2, r2=0.74', "Linear, r2=0.66", "Raw Data"], loc='best')
 plt.title("Multiple Regression of Tesla Stock Price Vs. Twitter Sentiment Score")
-plt.xlabel('Twitter Sentiment')
-plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
+plt.xlabel('Days Since Start')
+plt.ylabel('TSLA Share Close Price - Open Price (USD)')
+plt.savefig('../images/both_regression.png', dpi=300)
 plt.show()
 
 # =========================================================================== #
