@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+from matplotlib import rcParams
+rcParams.update({'figure.autolayout': True})
+
 import math
 import pandas as pd
 from preprocess import Preprocess
@@ -24,7 +27,6 @@ RNN_DATABASE_PATH = "../data/rnn_data.db"
 x = Preprocess(STOCK_DATABASE_PATH, RNN_DATABASE_PATH)
 numpy_data, df_data, numpy_vanilla_rnn_data, df_vanilla_rnn_data = x.get_data()
 sns.set_style("whitegrid")
-print(sns.axes_style())
 
 
 # Lets try and make a histogram of the twitter sentiment
@@ -40,7 +42,7 @@ plt.show()
 # Seaborn Histogram
 # Histogram of Sentiments
 sns.distplot(np.array(df_data['Twitter Score']), hist_kws=dict(alpha=1), kde=False, color="#cc0000", axlabel="Twitter Sentiment Scores", bins=10).set_title("Distribution of Twitter Sentiment Scores")
-plt.savefig("../images/sentiment_histogram.png")
+# plt.savefig("../images/sentiment_histogram.png", dpi=300)
 plt.show()
 
 # ============================================================================ #
@@ -75,7 +77,7 @@ print(new_df[new_df['Twitter Score'] > top_bound])
 print(new_df[new_df['Twitter Score'] < bottom_bound])
 
 # Set X,y to be twitter Score
-X = new_df[["Open", "Close", "Adj Close", "Twitter Score"]]
+X = new_df[["Open", "High", "Low", "Close", "Adj Close", "Volume", "Twitter Score"]]
 
 # Shift to get the previous data as next time step X
 X[["Open",  "Close", "Adj Close"]] = X[["Open", "Close", "Adj Close"]].shift(-1)
@@ -89,10 +91,13 @@ y = y[:-1]
 dataset_size = len(X)
 split_point = int(np.round(dataset_size * 0.8))
 
-X_train = X.iloc[:split_point,:]
-X_test = X.iloc[split_point:, :]
+X_train_p = X.iloc[:split_point,:]
+X_test_p = X.iloc[split_point:, :]
 y_train = y[:split_point]
 y_test = y[split_point:]
+
+X_train = X_train_p[["Open", "Close", "Adj Close", "Twitter Score"]]
+X_test = X_test_p[["Open", "Close", "Adj Close", "Twitter Score"]]
 
 # Without the twitter data X_train and X_test
 X_train_no_twit = X_train[["Open", "Close", "Adj Close"]]
@@ -120,6 +125,7 @@ with sns.axes_style("white"):
     p2, = par1.plot(hours, df_data['Close'], label="Tesla Share Price (USD)", color="#641499")
     host.legend(handles=[p1,p2], loc='best')
     fig.autofmt_xdate()
+    # plt.savefig('../images/price_vs_sentiment.png', dpi=300)
     plt.show()
 
 # ========================================================================== #
@@ -152,29 +158,30 @@ sns.lineplot(x=test_hours, y=lin.predict(X_test), color="#cc0000",
 plt.legend(['Predicted Model','Raw data'], loc='best')
 plt.xlabel('Twitter Sentiment')
 plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
+# plt.savefig('../images/linear_regression.png', dpi=300)
 plt.show()
 
-# Save Linear Regression Values in CSV
-filename = "linear_regression.csv"
-path = os.path.join(os.path.dirname(sys.path[0]), "csv", filename)
-predicted = lin.predict(X_test)
-predicted_no_twitter = lin_no_twitter.predict(X_test_no_twit)
-truth = y_test
+# # Save Linear Regression Values in CSV
+# filename = "linear_regression.csv"
+# path = os.path.join(os.path.dirname(sys.path[0]), "csv", filename)
+# predicted = lin.predict(X_test)
+# predicted_no_twitter = lin_no_twitter.predict(X_test_no_twit)
+# truth = y_test
 
-with open(path, 'w') as file:
-    writer = csv.writer(file)
-    writer.writerow(["Test Hour", "Predicted Price", "No Twitter Predicted Price", "Actual Price"])
+# with open(path, 'w') as file:
+#     writer = csv.writer(file)
+#     writer.writerow(["Test Hour", "Predicted Price", "No Twitter Predicted Price", "Actual Price"])
 
-    for i in range(test_hours.shape[0]):
-        writer.writerow([test_hours[i], predicted[i], predicted_no_twitter[i], truth.iloc[i]])
+#     for i in range(test_hours.shape[0]):
+#         writer.writerow([test_hours[i], predicted[i], predicted_no_twitter[i], truth.iloc[i]])
 
 
 # ============================================================================ #
 #Testing to see whether or not the statsmodel produces anything different
 # Manually make test_size last 20 percent
 
-nX_train = X_train.astype(float)
-nX_test = X_test.astype(float)
+nX_train = X_train_p.astype(float)
+nX_test = X_test_p.astype(float)
 ny_train = y_train.astype(float)
 ny_test = y_test.astype(float)
 
@@ -251,22 +258,23 @@ sns.lineplot(x=test_hours, y=lin2.predict(poly.fit_transform(X_test)),
 plt.legend(['Predicted Model','Raw data'], loc='best')
 plt.xlabel('Twitter Sentiment')
 plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
+# plt.savefig('../images/polynomial_regression.png', dpi=300)
 plt.show()
 
-# Save Polynomial Regression Values in CSV
-filename = "polynomial_regression.csv"
-path = os.path.join(os.path.dirname(sys.path[0]), "csv", filename)
-predicted = lin2.predict(X_poly_test)
-x_test_poly_no_twit = poly.fit_transform(X_test_no_twit)
-predict_no_twit = poly2_no_twitter.predict(x_test_poly_no_twit)
-truth = y_test
+# # Save Polynomial Regression Values in CSV
+# filename = "polynomial_regression.csv"
+# path = os.path.join(os.path.dirname(sys.path[0]), "csv", filename)
+# predicted = lin2.predict(X_poly_test)
+# x_test_poly_no_twit = poly.fit_transform(X_test_no_twit)
+# predict_no_twit = poly2_no_twitter.predict(x_test_poly_no_twit)
+# truth = y_test
 
-with open(path, 'w') as file:
-    writer = csv.writer(file)
-    writer.writerow(["Test Hour", "Predicted Price", "No Twitter Predicted Price", "Actual Price"])
+# with open(path, 'w') as file:
+#     writer = csv.writer(file)
+#     writer.writerow(["Test Hour", "Predicted Price", "No Twitter Predicted Price", "Actual Price"])
 
-    for i in range(test_hours.shape[0]):
-        writer.writerow([test_hours[i], predicted[i], predict_no_twit[i], truth.iloc[i]])
+#     for i in range(test_hours.shape[0]):
+#         writer.writerow([test_hours[i], predicted[i], predict_no_twit[i], truth.iloc[i]])
 
 # =========================================================================== #
 # Combined linear and polynomial plot
@@ -290,12 +298,12 @@ plt.show()
 # =========================================================================== #
 # Seaborn Heatmap
 p_values = results.pvalues
-data = np.asarray(p_values.to_numpy()[1:5]).reshape(4,1)
+data = np.asarray(p_values.to_numpy()[1:8]).reshape(7,1)
 color_map = cm.get_cmap('Reds', 256)
-sns.heatmap(data, vmax=0.6, annot=True, yticklabels=p_values.index.to_numpy()[1:5], 
-            cmap=color_map, xticklabels=["p-value"]).set_title("P-Values of Independent Variables in Linear Multiple Regression Model")
-plt.ylabel("Variable")
-plt.savefig('../images/heatmap.png', dpi=300)
+sns.heatmap(data, vmax=0.6, annot=True, yticklabels=p_values.index.to_numpy()[1:8], 
+            cmap=color_map, xticklabels=["p-value"]).set_title("P-Values in Linear Multiple Regression Model with All Variables")
+plt.ylabel("Independent Variable")
+# plt.savefig('../images/heatmap.png', dpi=300)
 plt.show()
 
 # =========================================================================== #
