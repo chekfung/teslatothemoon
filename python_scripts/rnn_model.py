@@ -8,7 +8,7 @@ class Stock_RNN(tf.keras.Model):
     def __init__(self, batch_size):
         super(Stock_RNN, self).__init__()
 
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate = 0.05, beta_1=0.5, beta_2=0.9) # Optimizer
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate = 0.0001, beta_1=0, beta_2=0.9) # Optimizer
         self.batch_size = batch_size # Take one day's worth of data at a time
         self.model = tf.keras.Sequential()
         
@@ -27,6 +27,7 @@ class Stock_RNN(tf.keras.Model):
         self.model.add(tf.keras.layers.Dropout(0.2))
         self.model.add(tf.keras.layers.Flatten())
         self.model.add(tf.keras.layers.Dense(100, use_bias=True, activation='relu')) # Dense layer
+        self.model.add(tf.keras.layers.Dense(100, use_bias=True, activation='relu'))
         self.model.add(tf.keras.layers.Dropout(0.2))
         self.model.add(tf.keras.layers.Dense(1, use_bias=True)) # Dense layer
         
@@ -98,7 +99,7 @@ def preprocess(train_data, test_data, train_prices, test_prices, window_size):
 if __name__=="__main__":
     rnn = Stock_RNN(24)
     TEST_PROB = 0.2
-    NUM_EPOCHS = 250
+    NUM_EPOCHS = 100000
     WINDOW_SIZE = 24
     train_data, test_data, train_prices, test_prices = get_data(TEST_PROB)
     train_data, test_data, train_prices, test_prices = preprocess(train_data, test_data, train_prices, test_prices, WINDOW_SIZE)
@@ -107,10 +108,11 @@ if __name__=="__main__":
     print(np.shape(test_data))
     print(np.shape(train_prices))
     print(np.shape(test_prices))
+    #train_data, train_prices = np.arange(441).reshape((441,1)).astype(np.float32), np.arange(441).reshape((441,1)).astype(np.float32)
     train(rnn, train_data, train_prices, test_data, test_prices, NUM_EPOCHS)
     test(rnn, test_data, test_prices)
-    real = plt.plot(test_prices, label='real')
-    pred = plt.plot(rnn(test_data), label='predicted')
+    real = plt.plot(train_prices, label='real')
+    pred = plt.plot(rnn(train_data), label='predicted')
     
     plt.legend(['Real', 'Predicted'])
     
