@@ -115,7 +115,7 @@ def makeImage(text):
 	#image_colors = ImageColorGenerator(tesla_mask)
 	plt.imshow(wc.recolor(color_func=color_func), interpolation="bilinear")
 	plt.axis("off")
-	#plt.savefig(os.path.join(os.path.dirname(sys.path[0]), "images", "word_cloud"))
+	plt.savefig(os.path.join(os.path.dirname(sys.path[0]), "images", "word_cloud"))
 	plt.show()
 
 makeImage(word_dict)
