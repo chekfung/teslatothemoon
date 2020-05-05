@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import cm
+from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 import math
 import pandas as pd
 from preprocess import Preprocess
@@ -237,10 +239,14 @@ plt.show()
 # =========================================================================== #
 # Seaborn Heatmap
 p_values = results.pvalues
-data = np.asarray(p_values.to_numpy()).reshape(5,1)
-
-sns.heatmap(data, vmax=0.6, annot=True)
+data = np.asarray(p_values.to_numpy()[1:5]).reshape(4,1)
+color_map = cm.get_cmap('Reds', 256)
+sns.heatmap(data, vmax=0.6, annot=True, yticklabels=p_values.index.to_numpy()[1:5], 
+            cmap=color_map, xticklabels=["p-value"]).set_title("P-Values of Independent Variables in Multiple Regression Model")
+plt.ylabel("Variable")
+plt.savefig('../images/heatmap.png', dpi=300)
 plt.show()
+
 # =========================================================================== #
 
 
