@@ -21,8 +21,7 @@ STOCK_DATABASE_PATH = "../data/stock_data.db"
 RNN_DATABASE_PATH = "../data/rnn_data.db"
 x = Preprocess(STOCK_DATABASE_PATH, RNN_DATABASE_PATH)
 numpy_data, df_data, numpy_vanilla_rnn_data, df_vanilla_rnn_data = x.get_data()
-sns.set_style("ticks")
-sns.set_style("darkgrid")
+sns.set_style("whitegrid")
 print(sns.axes_style())
 
 
@@ -38,7 +37,7 @@ plt.show()
 
 # Seaborn Histogram
 # Histogram of Sentiments
-sns.distplot(np.array(df_data['Twitter Score']), kde=False, color="#D50E1D", axlabel="Twitter Sentiment Scores", bins=10).set_title("Distribution of Twitter Sentiment Scores")
+sns.distplot(np.array(df_data['Twitter Score']), hist_kws=dict(alpha=1), kde=False, color="#cc0000", axlabel="Twitter Sentiment Scores", bins=10).set_title("Distribution of Twitter Sentiment Scores")
 plt.savefig("../images/sentiment_histogram.png")
 plt.show()
 
@@ -101,20 +100,21 @@ test_hours = hours_clipped[split_point:]
 # ========================================================================== #
 
 #Quick plot to show twitter data next to stock data
-fig = plt.figure(0)
-host = fig.add_subplot(111)
+with sns.axes_style("white"):
+    fig = plt.figure(0)
+    host = fig.add_subplot(111)
+    
+    par1 = host.twinx()
+    host.set_xlabel('Date')
+    host.set_ylabel('Twitter Sentiment Scores')
+    par1.set_ylabel('Tesla Share Price (USD)')
+    host.set_title('Tesla Share Price vs. Twitter Sentiment Analysis Scores')
 
-par1 = host.twinx()
-host.set_xlabel('Date')
-host.set_ylabel('Twitter Sentiment Scores')
-par1.set_ylabel('Tesla Share Price (USD)')
-host.set_title('Tesla Share Price vs. Twitter Sentiment Analysis Scores')
-
-p1, = host.plot(hours, df_data['Twitter Score'], '-r', label='Twitter Sentiment Scores')
-p2, = par1.plot(hours, df_data['Close'], label="Tesla Share Price (USD)")
-host.legend(handles=[p1,p2], loc='best')
-fig.autofmt_xdate()
-plt.show()
+    p1, = host.plot(hours, df_data['Twitter Score'], '-r', color="#cc0000", label='Twitter Sentiment Scores')
+    p2, = par1.plot(hours, df_data['Close'], label="Tesla Share Price (USD)", color="#641499")
+    host.legend(handles=[p1,p2], loc='best')
+    fig.autofmt_xdate()
+    plt.show()
 
 # ========================================================================== #
 
@@ -139,8 +139,8 @@ print('\n')
 # plt.show()
 
 # Seaborn
-ax = sns.scatterplot(x=test_hours, y=y_test)
-sns.lineplot(x=test_hours, y=lin.predict(X_test),
+ax = sns.scatterplot(x=test_hours, y=y_test, color="#558cf2")#f59505
+sns.lineplot(x=test_hours, y=lin.predict(X_test), color="#cc0000",
              ax=ax).set_title("Linear Regression of Stock Price vs. Twitter Sentiment")
 plt.legend(['Predicted Model','Raw data'], loc='best')
 plt.xlabel('Twitter Sentiment')
@@ -211,9 +211,9 @@ print('\n')
 # plt.show()
 
 # Seaborn
-ax = sns.scatterplot(x=test_hours, y=y_test)
+ax = sns.scatterplot(x=test_hours, y=y_test, color="#558cf2")
 sns.lineplot(x=test_hours, y=lin2.predict(poly.fit_transform(X_test)),
-             ax=ax).set_title('Polynomial Regression (2nd degree) of Stock Price vs. Twitter Sentiment')
+             ax=ax, color="#cc0000").set_title('Polynomial Regression (2nd degree) of Stock Price vs. Twitter Sentiment')
 plt.legend(['Predicted Model','Raw data'], loc='best')
 plt.xlabel('Twitter Sentiment')
 plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
@@ -244,7 +244,7 @@ p_values = results.pvalues
 data = np.asarray(p_values.to_numpy()[1:5]).reshape(4,1)
 color_map = cm.get_cmap('Reds', 256)
 sns.heatmap(data, vmax=0.6, annot=True, yticklabels=p_values.index.to_numpy()[1:5], 
-            cmap=color_map, xticklabels=["p-value"]).set_title("P-Values of Independent Variables in Multiple Regression Model")
+            cmap=color_map, xticklabels=["p-value"]).set_title("P-Values of Independent Variables in Linear Multiple Regression Model")
 plt.ylabel("Variable")
 plt.savefig('../images/heatmap.png', dpi=300)
 plt.show()
