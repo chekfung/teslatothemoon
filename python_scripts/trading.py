@@ -110,7 +110,7 @@ class StockTradingObj:
         
         palette = dict(zip(final_df["Trader"].unique(),
                    sns.color_palette("rocket_r", 4)))
-        #plt.figure(figsize=(20,5))
+        #plt.figure(figsize=(20,10))
         sns.relplot(data=final_df, x="datetime", y="balance", hue="Trader", palette=palette, 
                     kind="line", legend=False)
         plt.legend(['Predicted Model Trader with Twitter Data', 'Baseline Trader without Twitter Data', 'Optimal Trader', 'Random Trader'],
@@ -120,6 +120,7 @@ class StockTradingObj:
         plt.title('Twitter Sentiment Trading Strategies on TESLA over 3/2 - 3/6'.format(self.initial_cash))
         #plt.savefig("../images/trading_comp.png", dpi=300)
         plt.show()
+        
         # If everything else is fine, continue
         plt.figure(1)
         plt.plot(self.datetime, self.actual_lst)
