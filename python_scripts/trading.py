@@ -3,6 +3,12 @@ import numpy as np
 import math
 import sqlite3
 import matplotlib.pyplot as plt
+import os
+import sys
+import pandas
+import seaborn as sns
+
+sns.set()
 
 # TODO: 
 #   1.) I have to import the stock data (that can just be an internal function)
@@ -31,7 +37,7 @@ class StockTradingObj:
     automatically be allowed to execute that trade and we do not have to wait 
     for another user to buy or sell.
     '''
-    def __init__(self, initial_cash, stock_data, predicted_arr, dates, trade_fee=0):
+    def __init__(self, initial_cash, stock_data, predicted_arr, baseline, dates, trade_fee=0):
         '''
         Parameters
         initial_cash - represents how much money the stock simulator starts with
@@ -44,17 +50,22 @@ class StockTradingObj:
         # Data needed to do the predictions
         self.predicted_arr = predicted_arr
         self.stock_data = stock_data
+        self.baseline = baseline
         self.dates = dates
         self.predicted_arr_slope = self.determine_slopes(predicted_arr)
+        self.baseline_slope = self.determine_slopes(baseline)
         self.optimal_slope = self.determine_slopes(stock_data)
 
         # Keep track of actual trading prices for graphing later
         self.datetime = [] 
         self.actual_lst = []
+        self.baseline_lst = []
         self.optimal_lst = []
+        self.random_lst = []
         
         # Trading fee information
         self.trade_fee = trade_fee
+        self.initial_cash = initial_cash
 
         # Track number of trades, depending on whether or not we want to factor
         # that into our calculations
@@ -63,10 +74,17 @@ class StockTradingObj:
         self.num_shares = 0
 
         # For optimal trading (if we knew what the stock graph looked like)
-        self.num_shares_o = 0
-        self.cash_avail_o = initial_cash
         self.num_trades_o = 0
+        self.cash_avail_o = initial_cash
+        self.num_shares_o = 0
 
+        self.num_trades_r = 0
+        self.cash_avail_r = initial_cash
+        self.num_shares_r = 0
+
+        self.num_trades_b = 0
+        self.cash_avail_b = initial_cash 
+        self.num_shares_b = 0
 
     def graph_simulation(self):
         '''
@@ -74,20 +92,22 @@ class StockTradingObj:
         function will overlay both of the plots over each other. It will then 
         save it into the output folder.
         '''
-        if len(self.datetime) != len(self.actual_lst) || len(self.datetime) != len(self.optimal_lst):
+        if (len(self.datetime) != len(self.actual_lst)) or (len(self.datetime) != len(self.optimal_lst)):
             raise Exception('Datetime and actual_lst are not equal!')
 
         # If everything else is fine, continue
         plt.figure(1)
-        plt.plot(self.datetime, self.actual_lst, 'r')
-        plt.plot(self.datetime, self.optimal_lst, 'g')
-        plt.legend(['Predicted RNN Strategy', 'Optimal Strategy'])
-        plt.xlabel('Date')
-        plt.ylabel('Total Account Balance (USD)')
-        plt.title('RNN Predicted Trading Strategy Vs. Optimal Trading Strategy')
+        plt.plot(self.datetime, self.actual_lst)
+        plt.plot(self.datetime, self.baseline_lst)
+        plt.plot(self.datetime, self.optimal_lst)
+        plt.plot(self.datetime, self.random_lst)
+        plt.legend(['Predicted Model Trader with Twitter Data', 'Baseline Trader without Twitter Data', 'Optimal Trader', 'Random Trader'])
+        plt.xlabel('Trading Hours (3/2 - 3/6)')
+        plt.ylabel('Total Account Balance on Platform (USD)')
+        plt.title('Twitter Sentiment Trading Strategies on TESLA over 3/2 - 3/6'.format(self.initial_cash))
         
         # If want to save the file
-        plt.savefig('output/trading_strategies.png')
+        #plt.savefig('output/trading_strategies.png')
         plt.show()
     
     def graph_original_predict(self):
@@ -98,8 +118,8 @@ class StockTradingObj:
         be saved to the output folder.
         '''
         # First check to make sure that they are all the same length
-        if not (self.predicted_arr.shape[0] == self.stock_data.shape[0] && \
-                self.stock_data.shape[0] == self.dates.shape[0]):
+        if (not (self.predicted_arr.shape[0] == self.stock_data.shape[0]) and \
+                (self.stock_data.shape[0] == self.dates.shape[0])):
             raise Exception('Predicted, Stock, or Dates NOT all the same length.')
 
         # If everything is fine, start graphing
@@ -129,12 +149,12 @@ class StockTradingObj:
 
         # Loop through each of the pairs to get the slope for each step
         for i in range(0, length):
-            slopes[i] = (predicted_arr[i] + predicted_arr[i + 1]) / 2
+            slopes[i] = (predicted_arr[i + 1] - self.stock_data[i]) / 2
         
         return slopes
 
 
-    def buy_stock(self, num_shares, cost, op_bool=False):
+    def buy_stock(self, num_shares, cost, op_bool=0):
         '''
         Update the actual trading parameters when we conduct a trade
         
@@ -147,7 +167,7 @@ class StockTradingObj:
         trade_cost = (num_shares * cost) + self.trade_fee 
 
         # If using RNN trading:
-        if not op_bool:
+        if op_bool == 0:
             if trade_cost > self.cash_avail:
                 raise Exception('RNN: Calculated math incorrectly. Trying to trade on margin')
 
@@ -156,9 +176,8 @@ class StockTradingObj:
             self.num_shares += num_shares
             self.cash_avail = self.cash_avail - trade_cost
 
-
         # If using Optimal trading:
-        else:
+        elif (op_bool == 1):
             if trade_cost > self.cash_avail_o:
                 raise Exception('Optimal: Calculated math incorrectly. Trying to trade on margin')
 
@@ -166,8 +185,28 @@ class StockTradingObj:
             self.num_trades_o += 1
             self.num_shares_o += num_shares
             self.cash_avail_o = self.cash_avail_o - trade_cost
+        
+        # If using strategy without twitter sentiment (Baseline)
+        elif (op_bool == 2):
+            if trade_cost > self.cash_avail_b:
+                raise Exception('Baseline: Calcualted math incorrectly. Trying to trade on margin')
 
-    def sell_stock(self, num_shares, cost, op_bool=False):
+            # Update number of trades
+            self.num_trades_b += 1
+            self.num_shares_b += num_shares
+            self.cash_avail_b = self.cash_avail_b - trade_cost
+
+        # If using random strategy
+        else:
+            if trade_cost > self.cash_avail_r:
+                raise Exception('Random: Calculated math incorrectly. Trying to trade on margin')
+
+            # Update number of trades
+            self.num_trades_r += 1
+            self.num_shares_r += num_shares 
+            self.cash_avail_r = self.cash_avail_r - trade_cost
+
+    def sell_stock(self, num_shares, cost, op_bool=0):
         '''
         sell_stock is essentially the same method as buy_stock, but instead, 
         we sell the stock that we have.
@@ -178,7 +217,7 @@ class StockTradingObj:
         - op_bool: Initially set to false; state whether or not trading with RNN or optimal
         '''
         # If RNN trading
-        if not op_bool:
+        if op_bool == 0:
             # Check to make sure we have enough shares
             if self.num_shares < num_shares:
                 raise Exception('RNN: Trying to sell shares that we do not have!')
@@ -191,7 +230,7 @@ class StockTradingObj:
             self.cash_avail += trade_gain 
         
         # If optimal trading:
-        else:
+        elif (op_bool == 1):
             # Check to make sure we have enough shares
             if self.num_shares_o < num_shares:
                 raise Exception('Optimal: Trying to sell shares that we do not have!')
@@ -202,9 +241,32 @@ class StockTradingObj:
             self.num_trades_o += 1
             self.num_shares_o = self.num_shares_o - num_shares
             self.cash_avail_o += trade_gain 
+        
+        # If using strategy without twitter sentiment data (Baseline)
+        elif(op_bool == 2):
+            if self.num_shares_b < num_shares:
+                raise Exception('Baseline: Trying to see shares that we do not have!')
+                
+            trade_gain = (num_shares * cost) - self.trade_fee 
 
+            # Update our numbers 
+            self.num_trades_b += 1
+            self.num_shares_b = self.num_shares_b - num_shares
+            self.cash_avail_b += trade_gain
+        
+        # IF random trading:
+        else:
+            if self.num_shares_r < num_shares:
+                raise Exception('Random: Trying to sell shares that we do not have!')
+        
+            trade_gain = (num_shares * cost) - self.trade_fee
 
-    def determine_wealth(self, stock_price, op_bool=False):
+            # Update numbers
+            self.num_trades_r += 1
+            self.num_shares_r = self.num_shares_r - num_shares
+            self.cash_avail_r += trade_gain
+
+    def determine_wealth(self, stock_price, op_bool=0):
         '''
         Use this to update the actual_lst, representing the amount of money 
         in the account after the trading hour has elapsed.
@@ -217,17 +279,28 @@ class StockTradingObj:
         '''
         wealth = 0
         # If RNN
-        if not op_bool:
+        if op_bool == 0:
             trading_fees = self.trade_fee * self.num_trades
             stock_balance = stock_price * self.num_shares
-            wealth = trading_fees + stock_balance + self.cash_avail
+            wealth = stock_balance + self.cash_avail - trading_fees
 
         # If Optimal instead
-        else:
-            trading_fees = self.trade_fee * self.num_shares_o
+        elif (op_bool == 1):
+            trading_fees = self.trade_fee * self.num_trades_o
             stock_balance = stock_price * self.num_shares_o
-            wealth = trading_fees + stock_balance + self.cash_avail_o
-        
+            wealth = stock_balance + self.cash_avail_o - trading_fees
+
+        elif (op_bool == 2):
+            trading_fees = self.trade_fee * self.num_trades_b 
+            stock_balance = stock_price * self.num_shares_b
+            wealth = stock_balance + self.cash_avail_b - trading_fees
+
+        # Determine Random's wealth
+        else:
+            trading_fees = self.trade_fee * self.num_trades_r
+            stock_balance = stock_price * self.num_shares_r
+            wealth = stock_balance + self.cash_avail_r - trading_fees
+    
         return wealth
 
     
@@ -273,12 +346,14 @@ class StockTradingObj:
                 liquid_cash = self.cash_avail - self.trade_fee
                 num_shares = math.floor(liquid_cash / stock_price)
 
-                # Buy shares on the market
-                self.buy_stock(num_shares, stock_price)
+                if num_shares > 0:
+                    # Buy shares on the market
+                    self.buy_stock(num_shares, stock_price)
 
             elif rnn_slope < 0:
-                # If negative slope, sell all shares we own
-                self.sell_stock(self.num_shares, stock_price)
+                if self.num_shares > 0:
+                    # If negative slope, sell all shares we own
+                    self.sell_stock(self.num_shares, stock_price)
             
             # Add to our list what our wealth is at current time step
             curr_wealth = self.determine_wealth(stock_price)
@@ -289,33 +364,76 @@ class StockTradingObj:
 
             # Determine if buy, sell, or do nothing
             if optimal_slope > 0:
-                liquid_cash = self.cash_avail - self.trade_fee
+                liquid_cash = self.cash_avail_o - self.trade_fee
                 num_shares = math.floor(liquid_cash / stock_price)
 
-                # Buy shares on the market
-                self.buy_stock(num_shares, stock_price, op_bool=True)
-            
+                if num_shares > 0:
+                    # Buy shares on the market
+                    self.buy_stock(num_shares, stock_price, op_bool=1)
+   
             elif optimal_slope < 0:
-                # If negative slope, sell all shares we own
-                self.sell_stock(self.num_shares_o, stock_price)
+                if self.num_shares_o > 0:
+                    # If negative slope, sell all shares we own
+                    self.sell_stock(self.num_shares_o, stock_price, op_bool=1)
             
             # Add to our list what optimal wealth is at current time step
-            curr_wealth = self.determine_wealth(stock_price)
+            curr_wealth = self.determine_wealth(stock_price, op_bool=1)
+
             self.optimal_lst.append(curr_wealth)
+
+            # Baseline Trading Strategy
+            baseline_slope = self.baseline_slope[i]
+
+            if baseline_slope > 0:
+                liquid_cash = self.cash_avail_b - self.trade_fee 
+                num_shares = math.floor(liquid_cash / stock_price)
+
+                if num_shares > 0:
+                    self.buy_stock(num_shares, stock_price, op_bool=2)
+            elif optimal_slope < 0:
+                if self.num_shares_b > 0:
+                    self.sell_stock(self.num_shares_b, stock_price, op_bool=2)
+
+            # Add to our list what our baseline wealth is at this time stamp
+            curr_wealth = self.determine_wealth(stock_price, op_bool=2)
+
+            self.baseline_lst.append(curr_wealth)
+
+            # Random Trading Strategy
+            random = np.random.rand()
+            
+            # Flip a coin to determine whether to buy or to sell
+            if random > 0.5:
+                if self.num_shares_r > 0:
+                    self.sell_stock(self.num_shares_r, stock_price, op_bool=3)
+            else:
+                liquid_cash = self.cash_avail_r - self.trade_fee
+                num_shares = math.floor(liquid_cash / stock_price)
+
+                if num_shares > 0:
+                    # Buy shares on the market
+                    self.buy_stock(num_shares, stock_price, op_bool=3)
+            
+            curr_wealth = self.determine_wealth(stock_price, op_bool=3)
+            self.random_lst.append(curr_wealth)
 
 # =========================================================================== #
 def main():
     # Parse the three columns: predicted_arr, stock_data, dates
-    STOCK_DATABASE_PATH = "../data/stock_data.db"
-    RNN_DATABASE_PATH = "../data/rnn_data.db"
+    INITIAL_MONEY = 10000
 
-    x = Preprocess(STOCK_DATABASE_PATH, RNN_DATABASE_PATH)
-    numpy_data, df_data, numpy_vanilla_rnn_data, df_vanilla_rnn_data = x.get_data()
-    dates = df_data['Date'].to_numpy()
-    stocks = df_data['Close']
+    # Try trading on the regression stock
+    FILENAME = "polynomial_regression.csv"
+    path = os.path.join(os.path.dirname(sys.path[0]), "csv", FILENAME)
+    df = pd.read_csv(path)
 
-    # TODO: Get the predicted data
-    # For now, I have dummy data to make sure that everything works
+    # Baseline: "No Twitter Predicted Price"
+
+    # Load stock trading object
+    stockTrader = StockTradingObj(INITIAL_MONEY, df['Actual Price'].to_numpy(), df['Predicted Price'].to_numpy(), df["No Twitter Predicted Price"].to_numpy(), df['Test Hour'].to_numpy(), trade_fee=0)
+    stockTrader.run()
+    stockTrader.graph_simulation()
+    
 
 
 if __name__ == '__main__':
