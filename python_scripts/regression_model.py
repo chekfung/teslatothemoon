@@ -26,7 +26,8 @@ STOCK_DATABASE_PATH = "../data/stock_data.db"
 RNN_DATABASE_PATH = "../data/rnn_data.db"
 x = Preprocess(STOCK_DATABASE_PATH, RNN_DATABASE_PATH)
 numpy_data, df_data, numpy_vanilla_rnn_data, df_vanilla_rnn_data = x.get_data()
-sns.set_style("whitegrid")
+sns.set_style("ticks")
+sns.set_style("darkgrid")
 
 
 # Lets try and make a histogram of the twitter sentiment
