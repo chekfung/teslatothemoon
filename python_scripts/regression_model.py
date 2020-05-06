@@ -81,7 +81,7 @@ print(new_df[new_df['Twitter Score'] < bottom_bound])
 X = new_df[["Open", "High", "Low", "Close", "Adj Close", "Volume", "Twitter Score"]]
 
 # Shift to get the previous data as next time step X
-X[["Open",  "Close", "Adj Close"]] = X[["Open", "Close", "Adj Close"]].shift(-1)
+X[["Open", "High", "Low", "Close", "Adj Close", "Volume"]] = X[["Open", "High", "Low", "Close", "Adj Close", "Volume"]].shift(-1)
 y =  new_df["Close"]
 
 # Remove last step that now has a NaN in shifted values
@@ -97,12 +97,12 @@ X_test_p = X.iloc[split_point:, :]
 y_train = y[:split_point]
 y_test = y[split_point:]
 
-X_train = X_train_p[["Open", "Close", "Adj Close", "Twitter Score"]]
-X_test = X_test_p[["Open", "Close", "Adj Close", "Twitter Score"]]
+X_train = X_train_p[["Open", "High", "Low", "Close", "Adj Close", "Volume", "Twitter Score"]]
+X_test = X_test_p[["Open", "High", "Low", "Close", "Adj Close", "Volume", "Twitter Score"]]
 
 # Without the twitter data X_train and X_test
-X_train_no_twit = X_train[["Open", "Close", "Adj Close"]]
-X_test_no_twit = X_test[["Open", "Close", "Adj Close"]]
+X_train_no_twit = X_train[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
+X_test_no_twit = X_test[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
 
 # Label test hours instead of using date time objects
 hours = np.arange(len(df_data['Date']))

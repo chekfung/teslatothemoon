@@ -151,7 +151,6 @@ def get_data(test_prob=0.2):
     train_prices = train_prices.to_numpy().astype(np.float32)
     test_prices = test_prices.to_numpy().astype(np.float32)
 
-
     return train_data, test_data, train_prices, test_prices
 
 def slidingWindow(array, window_size):
