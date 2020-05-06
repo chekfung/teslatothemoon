@@ -82,7 +82,7 @@ print("Counts Dictionary Finished")
 def color_func(word, font_size, position, orientation, random_state=None, **kwargs):
 	blob = TextBlob(word)
 	polarity = blob.sentiment.polarity
-	bad_words = ["short", "crash", "28delayslater","sell", "never"]
+	bad_words = ["short", "crash","sell", "never"]
 	good_words = ["long", "buy"]
 	# Negative sentiment
 	if polarity < 0 or (word in bad_words):
@@ -94,7 +94,7 @@ def color_func(word, font_size, position, orientation, random_state=None, **kwar
 	elif (polarity > 0 or (word in good_words)):
 		# Green
 		value = int(np.round(np.abs(polarity) * 255))
-		if word in bad_words:
+		if word in good_words:
 			value = 255
 		color = "rgb(0,{},0)".format(value)
 	else:

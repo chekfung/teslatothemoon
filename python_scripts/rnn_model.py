@@ -4,6 +4,7 @@ import sqlite3
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import csv 
 
 sns.set()
 
@@ -13,39 +14,47 @@ class Stock_RNN(tf.keras.Model):
     def __init__(self, batch_size):
         super(Stock_RNN, self).__init__()
 
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate = 0.0001, beta_1=0, beta_2=0.9) # Optimizer
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate = 0.0001, beta_1=0.5, beta_2=0.9) # Optimizer
         self.batch_size = batch_size # Take one day's worth of data at a time
         self.model = tf.keras.Sequential()
         
-        # self.model.add(tf.keras.layers.LSTM(128, return_sequences=True)) # LSTM layer
-        # self.model.add(tf.keras.layers.Dropout(0.2))
-        # self.model.add(tf.keras.layers.LSTM(128, return_sequences=True)) # LSTM layer
-        # self.model.add(tf.keras.layers.Dropout(0.2))
+        # self.model.add(tf.keras.layers.LSTM(20, return_sequences=True)) # LSTM layer
+        # self.model.add(tf.keras.layers.Dropout(0.4))
+
+        # self.model.add(tf.keras.layers.LSTM(20, return_sequences=True)) # LSTM layer
+        # self.model.add(tf.keras.layers.Dropout(0.4))
+
         # self.model.add(tf.keras.layers.Flatten())
-        # self.model.add(tf.keras.layers.Dense(100, use_bias=True, activation='relu')) # Dense layer
         # self.model.add(tf.keras.layers.Dense(128, use_bias=True, activation='relu'))
-        # self.model.add(tf.keras.layers.Dropout(0.2))
-        # self.model.add(tf.keras.layers.Dense(16, use_bias=True, kernel_initializer='uniform', activation='relu')) # Dense layer
-        # self.model.add(tf.keras.layers.Dense(1, use_bias=True, kernel_initializer='uniform')) # Dense layer
+        # # self.model.add(tf.keras.layers.Dropout(0.2))
+        # # self.model.add(tf.keras.layers.Dense(256, use_bias=True, activation='relu')) # Dense layer
+        # # self.model.add(tf.keras.layers.Dropout(0.2))
+        # self.model.add(tf.keras.layers.Dense(1, use_bias=True)) # Dense layer
         
         # Convolutional Layers
-        self.model.add(tf.keras.layers.Conv2D(16, 2, padding='same', activation='relu'))
-        self.model.add(tf.keras.layers.Dropout(0.2))
+        self.model.add(tf.keras.layers.Conv2D(100, 2, padding='same', activation='relu'))
+        self.model.add(tf.keras.layers.Dropout(0.4))
+        self.model.add(tf.keras.layers.Conv2D(200, 2, padding='same', activation='relu'))
+        self.model.add(tf.keras.layers.Dropout(0.4))
+        self.model.add(tf.keras.layers.Conv2D(300, 2, padding='same', activation='relu'))
+        self.model.add(tf.keras.layers.AveragePooling2D(pool_size = 2))
 
-        self.model.add(tf.keras.layers.Conv2D(32, 2, strides=(2,2), padding='same', activation='relu'))
-        self.model.add(tf.keras.layers.Dropout(0.2))
+        # self.model.add(tf.keras.layers.Conv2D(256, 2, strides=(2,2), padding='same', activation='relu'))
+        # self.model.add(tf.keras.layers.Dropout(0.2))
 
-        self.model.add(tf.keras.layers.Conv2D(64, 2, strides=(2,2), padding='same', activation='relu'))
-        self.model.add(tf.keras.layers.Dropout(0.2))
-
-        self.model.add(tf.keras.layers.Conv2D(128, 2, strides=(2,2), padding='same', activation='relu'))
-        self.model.add(tf.keras.layers.Dropout(0.2))
+        # self.model.add(tf.keras.layers.Conv2D(512, 2, strides=(2,2), padding='same', activation='relu'))
+        # self.model.add(tf.keras.layers.Dropout(0.2))
 
         # Head
         self.model.add(tf.keras.layers.Flatten())
-        self.model.add(tf.keras.layers.Dense(100, use_bias=True, activation='relu')) # Dense layer
+        self.model.add(tf.keras.layers.Dense(64, use_bias=True, activation='relu')) # Dense layer
         self.model.add(tf.keras.layers.Dropout(0.2))
-        self.model.add(tf.keras.layers.Dense(100, use_bias=True, activation='relu'))
+        self.model.add(tf.keras.layers.Dense(128, use_bias=True, activation='relu'))
+        self.model.add(tf.keras.layers.Dropout(0.2))
+        self.model.add(tf.keras.layers.Dense(256, use_bias=True, activation='relu'))
+        self.model.add(tf.keras.layers.Dropout(0.2))
+        self.model.add(tf.keras.layers.Dense(512, use_bias=True, activation='relu'))
+        self.model.add(tf.keras.layers.Dropout(0.2))
         self.model.add(tf.keras.layers.Dense(1, use_bias=True)) # Dense layer
         
     @tf.function
@@ -72,8 +81,6 @@ def train(model, train_data, train_prices, test_data, test_prices, num_epochs):
             with tf.GradientTape() as tape:
                 predictions = model.call(train_data[current_batch_number:current_batch_number+model.batch_size]) # Get the probabilities for each batch
                 loss = model.loss_function(predictions,train_prices[current_batch_number:current_batch_number+model.batch_size]) # Gets the loss
-                
-                
                 # Gets the gradients for this batch
                 gradients = tape.gradient(loss, model.trainable_variables)
                 model.optimizer.apply_gradients(zip(gradients, model.trainable_variables)) # Does gradient descent
@@ -83,8 +90,8 @@ def train(model, train_data, train_prices, test_data, test_prices, num_epochs):
         print("Current Train MSE on epoch",current_epoch,":",model.accuracy_function(train_predictions, train_prices))
         print("Current Test MSE on epoch",current_epoch,":",model.accuracy_function(test_predictions, test_prices))
 
-        # TODO: Lowest so far I have found is 426
-        if model.accuracy_function(test_predictions, test_prices) < 410:
+        # TODO: Lowest so far I have found is 94
+        if model.accuracy_function(test_predictions, test_prices) < 50:
             break
         current_epoch += 1
     pass
@@ -135,8 +142,8 @@ def get_data(test_prob=0.2):
     test_prices = y[split_point:]
 
     # If want to use without the twitter data for BASELINE MODEL
-    #X_train_no_twit = X_train["Open", "High", "Low", "Close", "Adj Close", "Volume"]
-    #X_test_no_twit = X_test["Open", "High", "Low", "Close", "Adj Close", "Volume"]
+    train_data = train_data[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
+    test_data = test_data[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
 
     # Convert out of dataframes for use in numpy
     train_data = train_data.to_numpy().astype(np.float32)
@@ -173,10 +180,10 @@ def preprocess(train_data, test_data, train_prices, test_prices, window_size):
     return slidingWindow(train_data,window_size), sliding_window_test(test_data, train_data, window_size), train_prices[window_size-1:], test_prices
     
 if __name__=="__main__":
-    BATCH_SIZE = 12
+    BATCH_SIZE = 3
     TEST_PROB = 0.2
-    NUM_EPOCHS = 3000
-    WINDOW_SIZE = 16
+    NUM_EPOCHS = 4000
+    WINDOW_SIZE = 3
 
     rnn = Stock_RNN(BATCH_SIZE)
     train_data, test_data, train_prices, test_prices = get_data(TEST_PROB)
@@ -186,13 +193,16 @@ if __name__=="__main__":
     print(np.shape(test_data))
     print(np.shape(train_prices))
     print(np.shape(test_prices))
-    #train_data, train_prices = np.arange(441).reshape((441,1)).astype(np.float32), np.arange(441).reshape((441,1)).astype(np.float32)
     train(rnn, train_data, train_prices, test_data, test_prices, NUM_EPOCHS)
     test(rnn, test_data, test_prices)
     real = plt.plot(test_prices, label='real')
     pred = plt.plot(rnn(test_data), label='predicted')
+    print(rnn(test_data))
+
+
+
+
     
     plt.legend(['Real', 'Predicted'])
-    
     plt.show()
     
