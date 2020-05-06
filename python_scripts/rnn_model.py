@@ -91,7 +91,7 @@ def train(model, train_data, train_prices, test_data, test_prices, num_epochs):
         print("Current Test MSE on epoch",current_epoch,":",model.accuracy_function(test_predictions, test_prices))
 
         # TODO: Lowest so far I have found is 94
-        if model.accuracy_function(test_predictions, test_prices) < 50:
+        if model.accuracy_function(train_predictions, train_prices) < 1:
             break
         current_epoch += 1
     pass
@@ -101,57 +101,61 @@ def test(model,test_data, test_prices):
     mse = model.loss_function(predictions, test_prices)
     print("Test MSE:",mse)
     
-def get_data(test_prob=0.2):
+def get_data(test_prob=0.2, on_rnn_set = False, use_twitter=True):
     # FIXME: Just uncomment this stuff out
-    # conn = sqlite3.connect("../data/rnn_data.db")
-    # data = pd.read_sql("SELECT * FROM RNNData", conn).to_numpy()
-    # data_without_date = data[:,1:].astype(np.float32)
-    # total_points = np.shape(data_without_date)[0]
-    # train_data = data_without_date[:int((1-test_prob)*total_points)]
-    # test_data = data_without_date[int((1-test_prob)*total_points):]
-    # train_prices = train_data[1:,3]
-    # test_prices = test_data[1:,3]
-    # train_data = train_data[:-1]
-    # test_data = test_data[:-1]
-
-    # Preprocess the actual data
-    # Parsing actual data that we will use
-    STOCK_DATABASE_PATH = "../data/stock_data.db"
-    RNN_DATABASE_PATH = "../data/rnn_data.db"
-    x = Preprocess(STOCK_DATABASE_PATH, RNN_DATABASE_PATH)
-    numpy_data, df_data, numpy_vanilla_rnn_data, df_vanilla_rnn_data = x.get_data()
-
-    X = df_data[["Open", "High", "Low", "Close", "Adj Close", "Volume", "Twitter Score"]]
-
-    # Shift to get the previous data as next time step X
-    X[["Open", "High", "Low", "Close", "Adj Close", "Volume"]] = X[["Open", "High", "Low", "Close", "Adj Close", "Volume"]].shift(-1)
-    y =  df_data["Close"]
-
-    # Remove last step that now has a NaN in shifted values
-    X = X[:-1]
-    y = y[:-1]
-
-    # Manually make test_size last 20 percent
-    dataset_size = len(X)
-    train_prob = 1 - test_prob
-    split_point = int(np.round(dataset_size * train_prob))
-
-    train_data = X.iloc[:split_point,:]
-    test_data = X.iloc[split_point:, :]
-    train_prices = y[:split_point]
-    test_prices = y[split_point:]
-
-    # If want to use without the twitter data for BASELINE MODEL
-    train_data = train_data[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
-    test_data = test_data[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
-
-    # Convert out of dataframes for use in numpy
-    train_data = train_data.to_numpy().astype(np.float32)
-    test_data = test_data.to_numpy().astype(np.float32)
-    train_prices = train_prices.to_numpy().astype(np.float32)
-    test_prices = test_prices.to_numpy().astype(np.float32)
-
-    return train_data, test_data, train_prices, test_prices
+    if on_rnn_set:
+        conn = sqlite3.connect("../data/rnn_data.db")
+        data = pd.read_sql("SELECT * FROM RNNData", conn).to_numpy()
+        data_without_date = data[:,1:].astype(np.float32)
+        total_points = np.shape(data_without_date)[0]
+        train_data = data_without_date[:int((1-test_prob)*total_points)]
+        test_data = data_without_date[int((1-test_prob)*total_points):]
+        train_prices = train_data[1:,3]
+        test_prices = test_data[1:,3]
+        train_data = train_data[:-1]
+        test_data = test_data[:-1]
+        return train_data, test_data, train_prices, test_prices
+    else:
+        # Preprocess the actual data
+        # Parsing actual data that we will use
+        STOCK_DATABASE_PATH = "../data/stock_data.db"
+        RNN_DATABASE_PATH = "../data/rnn_data.db"
+        x = Preprocess(STOCK_DATABASE_PATH, RNN_DATABASE_PATH)
+        numpy_data, df_data, numpy_vanilla_rnn_data, df_vanilla_rnn_data = x.get_data()
+    
+        X = df_data[["Open", "High", "Low", "Close", "Adj Close", "Volume", "Twitter Score"]]
+    
+        # Shift to get the previous data as next time step X
+        X[["Open", "High", "Low", "Close", "Adj Close", "Volume"]] = X[["Open", "High", "Low", "Close", "Adj Close", "Volume"]].shift(-1)
+        y =  df_data["Close"]
+    
+        # Remove last step that now has a NaN in shifted values
+        X = X[:-1]
+        y = y[:-1]
+    
+        # Manually make test_size last 20 percent
+        dataset_size = len(X)
+        train_prob = 1 - test_prob
+        split_point = int(np.round(dataset_size * train_prob))
+    
+        train_data = X.iloc[:split_point,:]
+        test_data = X.iloc[split_point:, :]
+        train_prices = y[:split_point]
+        test_prices = y[split_point:]
+    
+        # If want to use without the twitter data for BASELINE MODEL
+        if not use_twitter:
+            train_data = train_data[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
+            test_data = test_data[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
+    
+        # Convert out of dataframes for use in numpy
+        train_data = train_data.to_numpy().astype(np.float32)
+        test_data = test_data.to_numpy().astype(np.float32)
+        train_prices = train_prices.to_numpy().astype(np.float32)
+        test_prices = test_prices.to_numpy().astype(np.float32)
+    
+    
+        return train_data, test_data, train_prices, test_prices
 
 def slidingWindow(array, window_size):
     windowed_array = []
@@ -171,22 +175,24 @@ def sliding_window_test(arr, train_data, window_size):
     return arr
     
 
-def preprocess(train_data, test_data, train_prices, test_prices, window_size):
+def preprocess(train_data, test_data, train_prices, test_prices, window_size, on_rnn_set=False):
     # FIXME: This is the previous implementation if you want to run on other data
-    #return slidingWindow(train_data,window_size), slidingWindow(test_data, window_size), train_prices[window_size-1:], test_prices[window_size-1:]
-
-    # New one that uses the twitter data
-    return slidingWindow(train_data,window_size), sliding_window_test(test_data, train_data, window_size), train_prices[window_size-1:], test_prices
+    if on_rnn_set:
+        return slidingWindow(train_data,window_size), slidingWindow(test_data, window_size), train_prices[window_size-1:], test_prices[window_size-1:]
+    else:
+        # New one that uses the twitter data
+        return slidingWindow(train_data,window_size), sliding_window_test(test_data, train_data, window_size), train_prices[window_size-1:], test_prices
     
 if __name__=="__main__":
-    BATCH_SIZE = 3
+    BATCH_SIZE = 6
     TEST_PROB = 0.2
     NUM_EPOCHS = 4000
     WINDOW_SIZE = 3
-
+    on_rnn_set = False
+    use_twitter = False
     rnn = Stock_RNN(BATCH_SIZE)
-    train_data, test_data, train_prices, test_prices = get_data(TEST_PROB)
-    train_data, test_data, train_prices, test_prices = preprocess(train_data, test_data, train_prices, test_prices, WINDOW_SIZE)
+    train_data, test_data, train_prices, test_prices = get_data(TEST_PROB, on_rnn_set=on_rnn_set, use_twitter=use_twitter)
+    train_data, test_data, train_prices, test_prices = preprocess(train_data, test_data, train_prices, test_prices, WINDOW_SIZE, on_rnn_set=on_rnn_set)
     train_data, test_data, train_prices, test_prices = train_data[...,None], test_data[...,None], train_prices[...,None], test_prices[...,None]
     print(np.shape(train_data))
     print(np.shape(test_data))
