@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import csv 
-
+import trading
 sns.set()
 
 from preprocess import Preprocess
@@ -18,11 +18,11 @@ class Stock_RNN(tf.keras.Model):
         self.batch_size = batch_size # Take one day's worth of data at a time
         self.model = tf.keras.Sequential()
         
-        # self.model.add(tf.keras.layers.LSTM(20, return_sequences=True)) # LSTM layer
-        # self.model.add(tf.keras.layers.Dropout(0.4))
+        #self.model.add(tf.keras.layers.LSTM(128, return_sequences=True)) # LSTM layer
+        #self.model.add(tf.keras.layers.Dropout(0.4))
 
-        # self.model.add(tf.keras.layers.LSTM(20, return_sequences=True)) # LSTM layer
-        # self.model.add(tf.keras.layers.Dropout(0.4))
+        #self.model.add(tf.keras.layers.LSTM(64, return_sequences=True)) # LSTM layer
+        #self.model.add(tf.keras.layers.Dropout(0.4))
 
         # self.model.add(tf.keras.layers.Flatten())
         # self.model.add(tf.keras.layers.Dense(128, use_bias=True, activation='relu'))
@@ -91,7 +91,7 @@ def train(model, train_data, train_prices, test_data, test_prices, num_epochs):
         print("Current Test MSE on epoch",current_epoch,":",model.accuracy_function(test_predictions, test_prices))
 
         # TODO: Lowest so far I have found is 94
-        if model.accuracy_function(train_predictions, train_prices) < 1:
+        if model.accuracy_function(train_predictions, train_prices) < 3:
             break
         current_epoch += 1
     pass
@@ -186,12 +186,13 @@ def preprocess(train_data, test_data, train_prices, test_prices, window_size, on
 if __name__=="__main__":
     BATCH_SIZE = 6
     TEST_PROB = 0.2
-    NUM_EPOCHS = 4000
+    NUM_EPOCHS = 2000
     WINDOW_SIZE = 3
     on_rnn_set = False
-    use_twitter = False
+    INITIAL_CASH = 10000
+    TRADE_COST = 0
     rnn = Stock_RNN(BATCH_SIZE)
-    train_data, test_data, train_prices, test_prices = get_data(TEST_PROB, on_rnn_set=on_rnn_set, use_twitter=use_twitter)
+    train_data, test_data, train_prices, test_prices = get_data(TEST_PROB, on_rnn_set=on_rnn_set, use_twitter=False)
     train_data, test_data, train_prices, test_prices = preprocess(train_data, test_data, train_prices, test_prices, WINDOW_SIZE, on_rnn_set=on_rnn_set)
     train_data, test_data, train_prices, test_prices = train_data[...,None], test_data[...,None], train_prices[...,None], test_prices[...,None]
     print(np.shape(train_data))
@@ -199,15 +200,19 @@ if __name__=="__main__":
     print(np.shape(train_prices))
     print(np.shape(test_prices))
     train(rnn, train_data, train_prices, test_data, test_prices, NUM_EPOCHS)
-    test(rnn, test_data, test_prices)
+    #test(rnn, test_data, test_prices)
     real = plt.plot(test_prices, label='real')
     pred = plt.plot(rnn(test_data), label='predicted')
-    print(rnn(test_data))
-
-
-
-
-    
     plt.legend(['Real', 'Predicted'])
     plt.show()
+
+    rnn_twitter = Stock_RNN(BATCH_SIZE)
+    train_data_twitter, test_data_twitter, train_prices_twitter, test_prices_twitter = get_data(TEST_PROB, on_rnn_set=on_rnn_set, use_twitter=True)
+    train_data_twitter, test_data_twitter, train_prices_twitter, test_prices_twitter = preprocess(train_data_twitter, test_data_twitter, train_prices_twitter, test_prices_twitter, WINDOW_SIZE, on_rnn_set=on_rnn_set)
+    train_data_twitter, test_data_twitter, train_prices_twitter, test_prices_twitter = train_data_twitter[...,None], test_data_twitter[...,None], train_prices_twitter[...,None], test_prices_twitter[...,None]
+    train(rnn_twitter, train_data_twitter, train_prices_twitter, test_data_twitter, test_prices_twitter, NUM_EPOCHS)
+    
+    stockTrader = trading.StockTradingObj(INITIAL_CASH, test_prices.flatten(), rnn_twitter(test_data_twitter).numpy().flatten(), rnn(test_data).numpy().flatten(), np.arange(np.shape(test_prices)[0]), TRADE_COST)
+    stockTrader.run()
+    stockTrader.graph_simulation()
     

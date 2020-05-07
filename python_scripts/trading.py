@@ -12,7 +12,7 @@ import seaborn as sns
 
 sns.set()
 sns.set_style("ticks")
-
+sns.set_style("whitegrid")
 # TODO: 
 #   1.) I have to import the stock data (that can just be an internal function)
 #   2.) Takes in prediction plot (I will assume that it is a 2d array for now where it first column is the stock hour datetime, and the second column is the predicted price)

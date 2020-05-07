@@ -107,7 +107,7 @@ def makeImage(text):
 	path = os.path.join(os.path.dirname(sys.path[0]), "images", "tesla-motors-logo.jpg")
 	tesla_mask = np.array(Image.open(path))
 
-	wc = WordCloud(background_color="white", max_words=200, mask=tesla_mask)
+	wc = WordCloud(background_color="white", max_words=200)#, mask=tesla_mask)
 	# generate word cloud
 	wc.generate_from_frequencies(text)
 
@@ -115,7 +115,7 @@ def makeImage(text):
 	#image_colors = ImageColorGenerator(tesla_mask)
 	plt.imshow(wc.recolor(color_func=color_func), interpolation="bilinear")
 	plt.axis("off")
-	plt.savefig(os.path.join(os.path.dirname(sys.path[0]), "images", "word_cloud"))
+	plt.savefig(os.path.join(os.path.dirname(sys.path[0]), "images", "word_cloud"), dpi=300)
 	plt.show()
 
 makeImage(word_dict)
