@@ -22,6 +22,8 @@ import statsmodels.api as sm
 from statsmodels.tools import eval_measures
 
 # Preprocess the data
+INCLUDE_ALL_VARIABLES = False
+
 STOCK_DATABASE_PATH = "../data/stock_data.db"
 RNN_DATABASE_PATH = "../data/rnn_data.db"
 x = Preprocess(STOCK_DATABASE_PATH, RNN_DATABASE_PATH)
@@ -70,39 +72,69 @@ bottom_bound = (-3 * std) + mean
 top_bound = (3 * std) + mean
 print('Bottom Bound:', bottom_bound, 'Top Bound:', top_bound)
 
-# Actually get rid of outliers f
 new_df = df_data[["Open", "High", "Low", "Close", "Adj Close", "Volume", "Twitter Score"]]
 
 print("Outliers that we found:")
 print(new_df[new_df['Twitter Score'] > top_bound])
 print(new_df[new_df['Twitter Score'] < bottom_bound])
 
-# Set X,y to be twitter Score
-X = new_df[["Open", "High", "Low", "Close", "Adj Close", "Volume", "Twitter Score"]]
+# If we get rid of high, low, volume
+if not INCLUDE_ALL_VARIABLES:
+    # Set X,y to be twitter Score
+    X = new_df[["Open", "Close", "Adj Close", "Twitter Score"]]
 
-# Shift to get the previous data as next time step X
-X[["Open", "High", "Low", "Close", "Adj Close", "Volume"]] = X[["Open", "High", "Low", "Close", "Adj Close", "Volume"]].shift(-1)
-y =  new_df["Close"]
+    # Shift to get the previous data as next time step X
+    X[["Open", "Close", "Adj Close"]] = X[["Open", "Close", "Adj Close"]].shift(-1)
+    y =  new_df["Close"]
 
-# Remove last step that now has a NaN in shifted values
-X = X[:-1]
-y = y[:-1]
+    # Remove last step that now has a NaN in shifted values
+    X = X[:-1]
+    y = y[:-1]
 
-# Manually make test_size last 20 percent
-dataset_size = len(X)
-split_point = int(np.round(dataset_size * 0.8))
+    # Manually make test_size last 20 percent
+    dataset_size = len(X)
+    split_point = int(np.round(dataset_size * 0.8))
 
-X_train_p = X.iloc[:split_point,:]
-X_test_p = X.iloc[split_point:, :]
-y_train = y[:split_point]
-y_test = y[split_point:]
+    X_train_p = X.iloc[:split_point,:]
+    X_test_p = X.iloc[split_point:, :]
+    y_train = y[:split_point]
+    y_test = y[split_point:]
 
-X_train = X_train_p[["Open", "High", "Low", "Close", "Adj Close", "Volume", "Twitter Score"]]
-X_test = X_test_p[["Open", "High", "Low", "Close", "Adj Close", "Volume", "Twitter Score"]]
+    X_train = X_train_p[["Open", "Close", "Adj Close", "Twitter Score"]]
+    X_test = X_test_p[["Open", "Close", "Adj Close", "Twitter Score"]]
 
-# Without the twitter data X_train and X_test
-X_train_no_twit = X_train[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
-X_test_no_twit = X_test[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
+    # Without the twitter data X_train and X_test
+    X_train_no_twit = X_train[["Open", "Close", "Adj Close"]]
+    X_test_no_twit = X_test[["Open", "Close", "Adj Close"]]
+
+# If want to do heatmap, etc.
+else:
+    # Set X,y to be twitter Score
+    X = new_df[["Open", "High", "Low", "Close", "Adj Close", "Volume", "Twitter Score"]]
+
+    # Shift to get the previous data as next time step X
+    X[["Open", "High", "Low", "Close", "Adj Close", "Volume"]] = X[["Open", "High", "Low", "Close", "Adj Close", "Volume"]].shift(-1)
+    y =  new_df["Close"]
+
+    # Remove last step that now has a NaN in shifted values
+    X = X[:-1]
+    y = y[:-1]
+
+    # Manually make test_size last 20 percent
+    dataset_size = len(X)
+    split_point = int(np.round(dataset_size * 0.8))
+
+    X_train_p = X.iloc[:split_point,:]
+    X_test_p = X.iloc[split_point:, :]
+    y_train = y[:split_point]
+    y_test = y[split_point:]
+
+    X_train = X_train_p[["Open", "High", "Low", "Close", "Adj Close", "Volume", "Twitter Score"]]
+    X_test = X_test_p[["Open", "High", "Low", "Close", "Adj Close", "Volume", "Twitter Score"]]
+
+    # Without the twitter data X_train and X_test
+    X_train_no_twit = X_train[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
+    X_test_no_twit = X_test[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
 
 # Label test hours instead of using date time objects
 hours = np.arange(len(df_data['Date']))
@@ -218,7 +250,7 @@ test_mse = eval_measures.mse(ny_test, predicted_y_test)
 # ============================================================================ #
 # Polynomial Regression with degree 2
 
-poly = PolynomialFeatures(degree = 2)
+poly = PolynomialFeatures(degree = 3)
 X_poly_train = poly.fit_transform(X_train)
 X_poly_test = poly.fit_transform(X_test)
 
