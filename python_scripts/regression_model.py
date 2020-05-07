@@ -22,32 +22,31 @@ import statsmodels.api as sm
 from statsmodels.tools import eval_measures
 
 # Preprocess the data
-INCLUDE_ALL_VARIABLES = False
+INCLUDE_ALL_VARIABLES = True
 
 STOCK_DATABASE_PATH = "../data/stock_data.db"
 RNN_DATABASE_PATH = "../data/rnn_data.db"
 x = Preprocess(STOCK_DATABASE_PATH, RNN_DATABASE_PATH)
 numpy_data, df_data, numpy_vanilla_rnn_data, df_vanilla_rnn_data = x.get_data()
-sns.set_style("ticks")
-sns.set_style("darkgrid")
+sns.set(style="ticks")
+sns.set(font_scale=1.5)
 
+# # Lets try and make a histogram of the twitter sentiment
+# twitter_sentiment = df_data["Twitter Score"]
+# twitter_sentiment.plot.hist(grid=True, bins=10, rwidth=0.9,
+#                    color='#607c8e')
+# plt.title('Twitter Sentiment Histogram')
+# plt.xlabel('Sentiment')
+# plt.ylabel('Counts')
+# plt.grid(axis='y', alpha=0.75)
+# plt.show()
 
-# Lets try and make a histogram of the twitter sentiment
-twitter_sentiment = df_data["Twitter Score"]
-twitter_sentiment.plot.hist(grid=True, bins=10, rwidth=0.9,
-                   color='#607c8e')
-plt.title('Twitter Sentiment Histogram')
-plt.xlabel('Sentiment')
-plt.ylabel('Counts')
-plt.grid(axis='y', alpha=0.75)
-plt.show()
-
-# Seaborn Histogram
-# Histogram of Sentiments
-sns.distplot(np.array(df_data['Twitter Score']), hist_kws=dict(alpha=1), kde=False, color="#eda70e", axlabel="Twitter Sentiment Scores", bins=10).set_title("Distribution of Twitter Sentiment Scores")
-plt.ylabel("Count")
-plt.savefig("../images/sentiment_histogram.png", dpi=300)
-plt.show()
+# # Seaborn Histogram
+# # Histogram of Sentiments
+# sns.distplot(np.array(df_data['Twitter Score']), hist_kws=dict(alpha=1), kde=False, color="#eda70e", axlabel="Twitter Sentiment Scores", bins=10).set_title("Distribution of Twitter Sentiment Scores")
+# plt.ylabel("Count")
+# plt.savefig("../images/sentiment_histogram.png", dpi=300)
+# plt.show()
 
 # ============================================================================ #
 # Graphing the raw sentiment vs. the stock price
@@ -55,11 +54,12 @@ plt.show()
 close = df_data["Close"]
 sentiment = df_data["Twitter Score"]
 
-plt.scatter(sentiment, close, color = 'green')
-plt.title("Raw Plot of Sentiment Vs. Close Price for TSLA")
-plt.xlabel("Sentiment")
-plt.ylabel("Close Price (USD)")
-plt.show()
+with sns.axes_style("white"):
+    plt.scatter(sentiment, close)
+    plt.title("Aggregated Sentiment Vs. Close Price for TSLA")
+    plt.xlabel("Aggregated Sentiment")
+    plt.ylabel("Close Price (USD)")
+    plt.show()
 
 # =========================================================================== #
 # This is an attempt to get rid of outliers and then view what it looks like
@@ -104,6 +104,10 @@ if not INCLUDE_ALL_VARIABLES:
     X_train = X_train_p[["Open", "Close", "Adj Close", "Twitter Score"]]
     X_test = X_test_p[["Open", "Close", "Adj Close", "Twitter Score"]]
 
+    # Remove the last three values from the X_train set (2 for CNN window size, 1 for gap)
+    X_train = X_train.iloc[:-3, :]
+    y_train = y_train[:-3]
+
     # Without the twitter data X_train and X_test
     X_train_no_twit = X_train[["Open", "Close", "Adj Close"]]
     X_test_no_twit = X_test[["Open", "Close", "Adj Close"]]
@@ -133,9 +137,17 @@ else:
     X_train = X_train_p[["Open", "High", "Low", "Close", "Adj Close", "Volume", "Twitter Score"]]
     X_test = X_test_p[["Open", "High", "Low", "Close", "Adj Close", "Volume", "Twitter Score"]]
 
+    # Remove the last three values from the X_train set (2 for CNN window size, 1 for gap)
+    X_train = X_train.iloc[:-3, :]
+    y_train = y_train[:-3]
+
     # Without the twitter data X_train and X_test
     X_train_no_twit = X_train[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
     X_test_no_twit = X_test[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
+
+# Rename everything with aggregated score
+X_train.rename(columns = {'Twitter Score':'Aggregated Sentiment'}, inplace = True)
+
 
 # Label test hours instead of using date time objects
 hours = np.arange(len(df_data['Date']))
@@ -151,11 +163,11 @@ with sns.axes_style("white"):
     
     par1 = host.twinx()
     host.set_xlabel('Date')
-    host.set_ylabel('Twitter Sentiment Scores')
+    host.set_ylabel('Aggregated Sentiment Scores')
     par1.set_ylabel('Tesla Share Price (USD)')
-    host.set_title('Tesla Share Price vs. Twitter Sentiment Analysis Scores')
+    host.set_title('Tesla Share Price vs. Aggregated Sentiment Analysis Scores')
 
-    p1, = host.plot(hours, df_data['Twitter Score'], '-r', color="#cc0000", label='Twitter Sentiment Scores')
+    p1, = host.plot(hours, df_data['Twitter Score'], '-r', color="#cc0000", label='Aggregated Sentiment Scores')
     p2, = par1.plot(hours, df_data['Close'], label="Tesla Share Price (USD)", color="#641499")
     host.legend(handles=[p1,p2], loc='best')
     fig.autofmt_xdate()
@@ -186,36 +198,36 @@ print('Linear No Twitter Testing R-squared:', r2_score(y_test, lin_no_twitter.pr
 print('\n')
 
 # Seaborn
-ax = sns.scatterplot(x=test_hours, y=y_test, color="#558cf2")#f59505
-sns.lineplot(x=test_hours, y=lin.predict(X_test), color="#cc0000",
-             ax=ax).set_title("Linear Regression of Stock Price vs. Twitter Sentiment")
-plt.legend(['Predicted Model','Raw data'], loc='best')
-plt.xlabel('Days Since Start')
-plt.ylabel('TSLA Share Close Price - Open Price (USD)')
-plt.savefig('../images/linear_regression.png', dpi=300)
-plt.show()
+# ax = sns.scatterplot(x=test_hours, y=y_test, color="#558cf2")#f59505
+# sns.lineplot(x=test_hours, y=lin.predict(X_test), color="#cc0000",
+#              ax=ax).set_title("Linear Regression of Stock Price vs. Aggregated Sentiment")
+# plt.legend(['Predicted Model','Raw data'], loc='best')
+# plt.xlabel('Trading Hours since 2/6')
+# plt.ylabel('TSLA Share Close Price - Open Price (USD)')
+# plt.savefig('../images/linear_regression.png', dpi=300)
+# plt.show()
 
-# # Save Linear Regression Values in CSV
-# filename = "linear_regression.csv"
-# path = os.path.join(os.path.dirname(sys.path[0]), "csv", filename)
-# predicted = lin.predict(X_test)
-# predicted_no_twitter = lin_no_twitter.predict(X_test_no_twit)
-# truth = y_test
+# Save Linear Regression Values in CSV
+filename = "linear_regression.csv"
+path = os.path.join(os.path.dirname(sys.path[0]), "csv", filename)
+predicted = lin.predict(X_test)
+predicted_no_twitter = lin_no_twitter.predict(X_test_no_twit)
+truth = y_test
 
-# with open(path, 'w') as file:
-#     writer = csv.writer(file)
-#     writer.writerow(["Test Hour", "Predicted Price", "No Twitter Predicted Price", "Actual Price"])
+with open(path, 'w') as file:
+    writer = csv.writer(file)
+    writer.writerow(["Test Hour", "Predicted Price", "No Twitter Predicted Price", "Actual Price"])
 
-#     for i in range(test_hours.shape[0]):
-#         writer.writerow([test_hours[i], predicted[i], predicted_no_twitter[i], truth.iloc[i]])
+    for i in range(test_hours.shape[0]):
+        writer.writerow([test_hours[i], predicted[i], predicted_no_twitter[i], truth.iloc[i]])
 
 
 # ============================================================================ #
 #Testing to see whether or not the statsmodel produces anything different
 # Manually make test_size last 20 percent
 
-nX_train = X_train_p.astype(float)
-nX_test = X_test_p.astype(float)
+nX_train = X_train.astype(float)
+nX_test = X_test.astype(float)
 ny_train = y_train.astype(float)
 ny_test = y_test.astype(float)
 
@@ -225,33 +237,15 @@ model = sm.OLS(ny_train, modified_x)
 results = model.fit()
 print(results.summary())
 
-# INFLUENCE PLOT
-#fig, ax = plt.subplots(figsize=(12,8))
-#fig = sm.graphics.influence_plot(results, ax=ax, criterion="cooks")
-#plt.show()
-
 # Partial Regression Plot
-fig = plt.figure(figsize=(12,8))
-fig = sm.graphics.plot_partregress_grid(results, fig=fig)
-plt.show()
-
-#print('R squared value:', results.rsquared)
-
-# Predicted y for both test and train
-predicted_y_train = results.predict(modified_x)
-modified_x_test = sm.add_constant(nX_test)
-predicted_y_test = results.predict(modified_x_test)
-
-# Get training and test MSE
-train_mse = eval_measures.mse(ny_train, predicted_y_train)
-test_mse = eval_measures.mse(ny_test, predicted_y_test)
-#print("Train MSE:", str(train_mse))
-#print("Test MSE:", str(test_mse))
+# fig = plt.figure(figsize=(12,8))
+# fig = sm.graphics.plot_partregress_grid(results, fig=fig)
+# plt.show()
 
 # ============================================================================ #
 # Polynomial Regression with degree 2
 
-poly = PolynomialFeatures(degree = 3)
+poly = PolynomialFeatures(degree = 2)
 X_poly_train = poly.fit_transform(X_train)
 X_poly_test = poly.fit_transform(X_test)
 
@@ -277,68 +271,53 @@ print('Polynomial No Twitter Training R-squared:', r2_score(y_train, poly2_no_tw
 print('Polynomial No Twitter Testing R-squared:', r2_score(y_test, poly2_no_twitter.predict(X_no_twitter_test)))
 print('\n')
 
-# plt.scatter(test_hours, y_test, color = 'blue')
-# plt.plot(test_hours, lin2.predict(poly.fit_transform(X_test)), color = 'red')
-# plt.title('Polynomial Regression (2nd degree) of Stock Price vs. Twitter Sentiment')
+# Seaborn
+# ax = sns.scatterplot(x=test_hours, y=y_test, color="#558cf2")
+# sns.lineplot(x=test_hours, y=lin2.predict(poly.fit_transform(X_test)),
+#              ax=ax, color="#cc0000").set_title('Polynomial Regression (2nd degree) of Stock Price vs. Twitter Sentiment')
 # plt.legend(['Predicted Model','Raw data'], loc='best')
-# plt.xlabel('Twitter Sentiment')
-# plt.ylabel('TSLA Share Close Price - TSLA Share Open Price (USD)')
+# plt.xlabel('Trading Hours since 2/6')
+# plt.ylabel('TSLA Share Close Price - Open Price (USD)')
+# plt.savefig('../images/polynomial_regression.png', dpi=300)
 # plt.show()
 
-# Seaborn
-ax = sns.scatterplot(x=test_hours, y=y_test, color="#558cf2")
-sns.lineplot(x=test_hours, y=lin2.predict(poly.fit_transform(X_test)),
-             ax=ax, color="#cc0000").set_title('Polynomial Regression (2nd degree) of Stock Price vs. Twitter Sentiment')
-plt.legend(['Predicted Model','Raw data'], loc='best')
-plt.xlabel('Days Since Start')
-plt.ylabel('TSLA Share Close Price - Open Price (USD)')
-plt.savefig('../images/polynomial_regression.png', dpi=300)
-plt.show()
+# Save Polynomial Regression Values in CSV
+filename = "polynomial_regression.csv"
+path = os.path.join(os.path.dirname(sys.path[0]), "csv", filename)
+predicted = lin2.predict(X_poly_test)
+x_test_poly_no_twit = poly.fit_transform(X_test_no_twit)
+predict_no_twit = poly2_no_twitter.predict(x_test_poly_no_twit)
+truth = y_test
 
-# # Save Polynomial Regression Values in CSV
-# filename = "polynomial_regression.csv"
-# path = os.path.join(os.path.dirname(sys.path[0]), "csv", filename)
-# predicted = lin2.predict(X_poly_test)
-# x_test_poly_no_twit = poly.fit_transform(X_test_no_twit)
-# predict_no_twit = poly2_no_twitter.predict(x_test_poly_no_twit)
-# truth = y_test
+with open(path, 'w') as file:
+    writer = csv.writer(file)
+    writer.writerow(["Test Hour", "Predicted Price", "No Twitter Predicted Price", "Actual Price"])
 
-# with open(path, 'w') as file:
-#     writer = csv.writer(file)
-#     writer.writerow(["Test Hour", "Predicted Price", "No Twitter Predicted Price", "Actual Price"])
-
-#     for i in range(test_hours.shape[0]):
-#         writer.writerow([test_hours[i], predicted[i], predict_no_twit[i], truth.iloc[i]])
+    for i in range(test_hours.shape[0]):
+        writer.writerow([test_hours[i], predicted[i], predict_no_twit[i], truth.iloc[i]])
 
 # =========================================================================== #
 # Combined linear and polynomial plot
-cmap = sns.dark_palette("muted purple", input="xkcd", as_cmap=True)
-sentiment = X_test["Twitter Score"].astype(int).to_numpy()
+# cmap = sns.dark_palette("muted purple", input="xkcd", as_cmap=True)
+# sentiment = X_test["Twitter Score"].astype(int).to_numpy()
 
-f, ax = plt.subplots()
-points = ax.scatter(test_hours, y_test, c=sentiment, s=30, cmap=cmap, marker="8")
-f.colorbar(points, label="Twitter Sentiment Score")
-#ax = sns.scatterplot(x=test_hours, y=y_test.to_numpy(), c=sentiment, cmap=cmap)
-sns.lineplot(x=test_hours, y=lin.predict(X_test),
-             ax=ax)
-sns.lineplot(x=test_hours, y=lin2.predict(poly.fit_transform(X_test)),
-             ax=ax)
-plt.legend(['Polynomial Degree 2, r2=0.74', "Linear, r2=0.66", "Raw Data"], loc='best')
-plt.title("Multiple Regression of Tesla Stock Price Vs. Twitter Sentiment Score")
-plt.xlabel('Days Since Start')
-plt.ylabel('TSLA Share Close Price - Open Price (USD)')
-plt.savefig('../images/both_regression.png', dpi=300)
-plt.show()
+# f, ax = plt.subplots()
+# points = ax.scatter(test_hours, y_test, c=sentiment, s=30, cmap=cmap, marker="8")
+# f.colorbar(points, label="Twitter Sentiment Score")
+# #ax = sns.scatterplot(x=test_hours, y=y_test.to_numpy(), c=sentiment, cmap=cmap)
+# sns.lineplot(x=test_hours, y=lin.predict(X_test),
+#              ax=ax)
+# sns.lineplot(x=test_hours, y=lin2.predict(poly.fit_transform(X_test)),
+#              ax=ax)
+# plt.legend(['Polynomial Degree 2, r2=0.74', "Linear, r2=0.66", "Raw Data"], loc='best')
+# plt.title("Multiple Regression of Tesla Stock Price Vs. Twitter Sentiment Score")
+# plt.xlabel('Days Since Start')
+# plt.ylabel('TSLA Share Close Price - Open Price (USD)')
+# plt.savefig('../images/both_regression.png', dpi=300)
+# plt.show()
 
 # =========================================================================== #
 # Seaborn Heatmap
-# p_values = results.pvalues.to_numpy()[1:8].reshape(7,1)
-# coeffs = results.params.to_numpy()[1:8].reshape(7,1)
-# print(coeffs)
-# print(p_values)
-# s = pd.Series(results.pvalues, name='p-values')
-# s["coefficients"] = results.params
-# print(s)
 data = pd.DataFrame()
 data["p-value"] = results.pvalues
 data["coefficient"] = results.params
@@ -350,13 +329,14 @@ diverge_color_map = cm.get_cmap('RdBu_r', 256) #coefficient color map
 sns.heatmap(data["p-value"].to_numpy().reshape(7, 1), vmin=0, vmax=0.6, annot=True, yticklabels=results.pvalues.index[1:8], 
             cmap=color_map, xticklabels=["p-value"]).set_title("P-Values in Linear Multiple Regression Model with All Variables")
 plt.ylabel("Independent Variable")
-plt.savefig('../images/pvalue_heatmap.png', dpi=300)
+#plt.savefig('../images/pvalue_heatmap.png', dpi=300)
+# Make bad figures with changes
 plt.show()
 
 sns.heatmap(data["coefficient"].to_numpy().reshape(7, 1), vmin=-0.6, vmax=0.6, center=0, annot=True, yticklabels=results.pvalues.index[1:8], 
             cmap=diverge_color_map, xticklabels=["coefficient"]).set_title("Coefficients in Linear Multiple Regression Model with All Variables")
 plt.ylabel("Independent Variable")
-plt.savefig('../images/coefficient_heatmap.png', dpi=300)
+#plt.savefig('../images/coefficient_heatmap.png', dpi=300)
 plt.show()
 
 # =========================================================================== #

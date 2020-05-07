@@ -10,9 +10,8 @@ import sys
 import pandas
 import seaborn as sns
 
-sns.set()
-sns.set_style("ticks")
-sns.set_style("whitegrid")
+sns.set(style="ticks")
+sns.set(font_scale=1.5)
 # TODO: 
 #   1.) I have to import the stock data (that can just be an internal function)
 #   2.) Takes in prediction plot (I will assume that it is a 2d array for now where it first column is the stock hour datetime, and the second column is the predicted price)
@@ -117,24 +116,24 @@ class StockTradingObj:
                    loc="upper left")
         plt.xlabel('Trading Hours (3/2 - 3/6)')
         plt.ylabel('Total Account Balance on Platform (USD)')
-        plt.title('Twitter Sentiment Trading Strategies on TESLA over 3/2 - 3/6'.format(self.initial_cash))
+        plt.title('Polynomial (D = 2) Regression Trading on Test Set')
         #plt.savefig("../images/trading_comp.png", dpi=300)
         plt.show()
         
-        # If everything else is fine, continue
-        plt.figure(1)
-        plt.plot(self.datetime, self.actual_lst)
-        plt.plot(self.datetime, self.baseline_lst)
-        plt.plot(self.datetime, self.optimal_lst)
-        plt.plot(self.datetime, self.random_lst)
-        plt.legend(['Predicted Model Trader with Twitter Data', 'Baseline Trader without Twitter Data', 'Optimal Trader', 'Random Trader'])
-        plt.xlabel('Trading Hours (3/2 - 3/6)')
-        plt.ylabel('Total Account Balance on Platform (USD)')
-        plt.title('Twitter Sentiment Trading Strategies on TESLA over 3/2 - 3/6'.format(self.initial_cash))
+        # # If everything else is fine, continue
+        # plt.figure(1)
+        # plt.plot(self.datetime, self.actual_lst)
+        # plt.plot(self.datetime, self.baseline_lst)
+        # plt.plot(self.datetime, self.optimal_lst)
+        # plt.plot(self.datetime, self.random_lst)
+        # plt.legend(['Predicted Model Trader with Twitter Data', 'Baseline Trader without Twitter Data', 'Optimal Trader', 'Random Trader'])
+        # plt.xlabel('Trading Hours (3/2 - 3/6)')
+        # plt.ylabel('Total Account Balance on Platform (USD)')
+        # plt.title('Twitter Sentiment Trading Strategies on TESLA over 3/2 - 3/6'.format(self.initial_cash))
         
-        # If want to save the file
-        #plt.savefig('output/trading_strategies.png')
-        plt.show()
+        # # If want to save the file
+        # #plt.savefig('output/trading_strategies.png')
+        # plt.show()
     
     def graph_original_predict(self):
         '''
@@ -447,6 +446,7 @@ class StockTradingObj:
 def main():
     # Parse the three columns: predicted_arr, stock_data, dates
     INITIAL_MONEY = 10000
+    dates = np.arange(28)
 
     # Try trading on the regression stock
     FILENAME = "../csv/polynomial_regression.csv"
@@ -456,7 +456,7 @@ def main():
     # Baseline: "No Twitter Predicted Price"
 
     # Load stock trading object
-    stockTrader = StockTradingObj(INITIAL_MONEY, df['Actual Price'].to_numpy(), df['Predicted Price'].to_numpy(), df["No Twitter Predicted Price"].to_numpy(), df['Test Hour'].to_numpy(), trade_fee=0)
+    stockTrader = StockTradingObj(INITIAL_MONEY, df['Actual Price'].to_numpy(), df['Predicted Price'].to_numpy(), df["No Twitter Predicted Price"].to_numpy(), dates, trade_fee=0)
     stockTrader.run()
     stockTrader.graph_simulation()
     
