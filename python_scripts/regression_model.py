@@ -22,7 +22,7 @@ import statsmodels.api as sm
 from statsmodels.tools import eval_measures
 
 # Preprocess the data
-INCLUDE_ALL_VARIABLES = True
+INCLUDE_ALL_VARIABLES = False
 
 STOCK_DATABASE_PATH = "../data/stock_data.db"
 RNN_DATABASE_PATH = "../data/rnn_data.db"
@@ -207,19 +207,19 @@ print('\n')
 # plt.savefig('../images/linear_regression.png', dpi=300)
 # plt.show()
 
-# Save Linear Regression Values in CSV
-filename = "linear_regression.csv"
-path = os.path.join(os.path.dirname(sys.path[0]), "csv", filename)
-predicted = lin.predict(X_test)
-predicted_no_twitter = lin_no_twitter.predict(X_test_no_twit)
-truth = y_test
+# # Save Linear Regression Values in CSV
+# filename = "linear_regression.csv"
+# path = os.path.join(os.path.dirname(sys.path[0]), "csv", filename)
+# predicted = lin.predict(X_test)
+# predicted_no_twitter = lin_no_twitter.predict(X_test_no_twit)
+# truth = y_test
 
-with open(path, 'w') as file:
-    writer = csv.writer(file)
-    writer.writerow(["Test Hour", "Predicted Price", "No Twitter Predicted Price", "Actual Price"])
+# with open(path, 'w') as file:
+#     writer = csv.writer(file)
+#     writer.writerow(["Test Hour", "Predicted Price", "No Twitter Predicted Price", "Actual Price"])
 
-    for i in range(test_hours.shape[0]):
-        writer.writerow([test_hours[i], predicted[i], predicted_no_twitter[i], truth.iloc[i]])
+#     for i in range(test_hours.shape[0]):
+#         writer.writerow([test_hours[i], predicted[i], predicted_no_twitter[i], truth.iloc[i]])
 
 
 # ============================================================================ #
@@ -282,19 +282,19 @@ print('\n')
 # plt.show()
 
 # Save Polynomial Regression Values in CSV
-filename = "polynomial_regression.csv"
-path = os.path.join(os.path.dirname(sys.path[0]), "csv", filename)
-predicted = lin2.predict(X_poly_test)
-x_test_poly_no_twit = poly.fit_transform(X_test_no_twit)
-predict_no_twit = poly2_no_twitter.predict(x_test_poly_no_twit)
-truth = y_test
+# filename = "polynomial_regression.csv"
+# path = os.path.join(os.path.dirname(sys.path[0]), "csv", filename)
+# predicted = lin2.predict(X_poly_test)
+# x_test_poly_no_twit = poly.fit_transform(X_test_no_twit)
+# predict_no_twit = poly2_no_twitter.predict(x_test_poly_no_twit)
+# truth = y_test
 
-with open(path, 'w') as file:
-    writer = csv.writer(file)
-    writer.writerow(["Test Hour", "Predicted Price", "No Twitter Predicted Price", "Actual Price"])
+# with open(path, 'w') as file:
+#     writer = csv.writer(file)
+#     writer.writerow(["Test Hour", "Predicted Price", "No Twitter Predicted Price", "Actual Price"])
 
-    for i in range(test_hours.shape[0]):
-        writer.writerow([test_hours[i], predicted[i], predict_no_twit[i], truth.iloc[i]])
+#     for i in range(test_hours.shape[0]):
+#         writer.writerow([test_hours[i], predicted[i], predict_no_twit[i], truth.iloc[i]])
 
 # =========================================================================== #
 # Combined linear and polynomial plot

@@ -449,7 +449,7 @@ def main():
     dates = np.arange(28)
 
     # Try trading on the regression stock
-    FILENAME = "../csv/polynomial_regression.csv"
+    FILENAME = "../csv/linear_regression.csv"
     path = os.path.join(os.path.dirname(sys.path[0]), "csv", FILENAME)
     df = pd.read_csv(FILENAME)
 
@@ -458,6 +458,8 @@ def main():
     # Load stock trading object
     stockTrader = StockTradingObj(INITIAL_MONEY, df['Actual Price'].to_numpy(), df['Predicted Price'].to_numpy(), df["No Twitter Predicted Price"].to_numpy(), dates, trade_fee=0)
     stockTrader.run()
+    print(stockTrader.actual_lst)
+    print(stockTrader.baseline_lst)
     stockTrader.graph_simulation()
     
 
