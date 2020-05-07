@@ -210,5 +210,7 @@ if __name__=="__main__":
     
     stockTrader = trading.StockTradingObj(INITIAL_CASH, test_prices.flatten(), rnn_twitter(test_data_twitter).numpy().flatten(), rnn(test_data).numpy().flatten(), np.arange(np.shape(test_prices)[0]), TRADE_COST)
     stockTrader.run()
+    print(stockTrader.actual_lst)
+    print(stockTrader.baseline_lst)
     stockTrader.graph_simulation()
     

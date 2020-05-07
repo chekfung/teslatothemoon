@@ -116,7 +116,7 @@ class StockTradingObj:
                    loc="upper left")
         plt.xlabel('Trading Hours (3/2 - 3/6)')
         plt.ylabel('Total Account Balance on Platform (USD)')
-        plt.title('Polynomial (D = 2) Regression Trading on Test Set')
+        plt.title('AVG CNN Trading on Test Set')
         #plt.savefig("../images/trading_comp.png", dpi=300)
         plt.show()
         
