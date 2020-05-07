@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import csv 
 import trading
-sns.set()
+
 
 from preprocess import Preprocess
 
@@ -181,7 +181,7 @@ def preprocess(train_data, test_data, train_prices, test_prices, window_size, on
         return slidingWindow(train_data,window_size), slidingWindow(test_data, window_size), train_prices[window_size-1:], test_prices[window_size-1:]
     else:
         # New one that uses the twitter data
-        return slidingWindow(train_data,window_size), sliding_window_test(test_data, train_data, window_size), train_prices[window_size-1:], test_prices
+        return slidingWindow(train_data,window_size)[:-window_size], sliding_window_test(test_data, train_data, window_size), train_prices[window_size-1:-window_size], test_prices
     
 if __name__=="__main__":
     BATCH_SIZE = 6
@@ -201,10 +201,6 @@ if __name__=="__main__":
     print(np.shape(test_prices))
     train(rnn, train_data, train_prices, test_data, test_prices, NUM_EPOCHS)
     #test(rnn, test_data, test_prices)
-    real = plt.plot(test_prices, label='real')
-    pred = plt.plot(rnn(test_data), label='predicted')
-    plt.legend(['Real', 'Predicted'])
-    plt.show()
 
     rnn_twitter = Stock_RNN(BATCH_SIZE)
     train_data_twitter, test_data_twitter, train_prices_twitter, test_prices_twitter = get_data(TEST_PROB, on_rnn_set=on_rnn_set, use_twitter=True)
